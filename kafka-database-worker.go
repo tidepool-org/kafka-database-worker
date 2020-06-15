@@ -65,7 +65,6 @@ func writeToDatabase() {
 	fmt.Println("inserted successfully")
 }
 
-
 func main() {
 	fmt.Println("In main")
 	time.Sleep(10 * time.Second)
