@@ -32,6 +32,18 @@ func NewDbContext() context.Context {
 	return ctx
 }
 
+type dbLogger struct { }
+
+func (d dbLogger) BeforeQuery(c context.Context, q *pg.QueryEvent) (context.Context, error) {
+	return c, nil
+}
+
+func (d dbLogger) AfterQuery(c context.Context, q *pg.QueryEvent) error {
+	fmt.Println(q.FormattedQuery())
+	return nil
+}
+
+
 func writeToDatabase() {
 	// Connect to db
 	user := "postgres"
@@ -52,6 +64,9 @@ func writeToDatabase() {
 
 	ctx := NewDbContext()
 
+	db.AddQueryHook(dbLogger{})
+
+
 	// Check if connection credentials are valid and PostgreSQL is up and running.
 	if err := db.Ping(ctx); err != nil {
 		fmt.Println("Error: ", err)
@@ -66,6 +81,8 @@ func writeToDatabase() {
 		duration: 50,
 		rate: 45.45,
 	}
+
+
 
 	fmt.Println("Inserting into db")
 	err = db.Insert(basal)
