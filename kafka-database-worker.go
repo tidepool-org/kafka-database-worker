@@ -82,14 +82,20 @@ func writeToDatabase() {
 	}
 	fmt.Println("Connected successfully")
 
-	fmt.Println("Inserting into db")
 	models := []interface{}{
 		(*Basal2)(nil),
 	}
 
-	db.CreateTable(models, &orm.CreateTableOptions{
+	fmt.Println("Creating table")
+	err  = db.CreateTable(models, &orm.CreateTableOptions{
 		Temp: true, // temp table
 	})
+	if err != nil {
+		fmt.Println("Error creating: ", err)
+		return
+	}
+
+	fmt.Println("Inserting into db")
 	err = db.Insert(&Basal2{
 		time: time.Now(),
 		uploadId: "upid4545",
