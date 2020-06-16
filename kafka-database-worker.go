@@ -15,7 +15,7 @@ var (
 )
 
 type Basal struct {
-	time              time.Time  `sql:"type:timestamptz"`
+	time              time.Time  `pg:"type:timestamptz"`
 
 	uploadId          string
 
@@ -82,18 +82,15 @@ func writeToDatabase() {
 	}
 	fmt.Println("Connected successfully")
 
-	basal := &Basal{
+	fmt.Println("Inserting into db")
+	err = db.Insert(&Basal{
 		time: time.Now(),
 		uploadId: "upid4545",
 		deliveryType: "automated",
 		duration: 50,
-		rate: 45.45,
-	}
+		rate: 45.45
+	})
 
-
-
-	fmt.Println("Inserting into db")
-	err = db.Insert(basal)
 	if err != nil {
 		fmt.Println("Error inserting: ", err)
 		return
