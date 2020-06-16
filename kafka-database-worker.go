@@ -17,14 +17,14 @@ var (
 type Basal struct {
 	Time              time.Time  `pg:"type:timestamptz"`
 
-	UploadId          string
+	UploadId          string   `pg:"uploadId"`
 
-	DeliveryType      string
+	DeliveryType      string   `pg:"deliveryType"`
 	Duration          int64
-	ExpectedDuration  int64
+	ExpectedDuration  int64   `pg:"expectedDuration"`
 	Rate              float64
 	Percent           float64
-	ScheduleName      string
+	ScheduleName      string   `pg:"scheduleName"`
 
 }
 
