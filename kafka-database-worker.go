@@ -88,7 +88,7 @@ func writeToDatabase() {
 		uploadId: "upid4545",
 		deliveryType: "automated",
 		duration: 50,
-		rate: 45.45
+		rate: 45.45,
 	})
 
 	if err != nil {
