@@ -90,6 +90,7 @@ func writeToDatabase() {
 		DeliveryType: "automated",
 		Duration: 50,
 		Rate: 45.45,
+		ScheduleName: "test",
 	})
 
 	if err != nil {
