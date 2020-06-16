@@ -24,7 +24,7 @@ type Basal struct {
 	ExpectedDuration  int64   `pg:"expectedduration"`
 	Rate              float64
 	Percent           float64
-	ScheduleName      string   `pg:"schedulesame"`
+	ScheduleName      string   `pg:"schedulename"`
 
 }
 
