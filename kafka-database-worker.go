@@ -59,7 +59,7 @@ func writeToDatabase() {
 	}
 	fmt.Println("Connected successfully")
 
-	basal := Basal{
+	basal := &Basal{
 		time: time.Now(),
 		uploadId: "upid4545",
 		deliveryType: "automated",
