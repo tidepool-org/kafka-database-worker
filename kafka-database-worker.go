@@ -14,7 +14,7 @@ var (
 	ContextTimeout = time.Duration(20)*time.Second
 )
 
-type Basal struct {
+type Basal2 struct {
 	time              time.Time  `pg:"type:timestamptz"`
 
 	uploadId          string
@@ -83,7 +83,14 @@ func writeToDatabase() {
 	fmt.Println("Connected successfully")
 
 	fmt.Println("Inserting into db")
-	err = db.Insert(&Basal{
+	models := []interface{}{
+		(*Basal2)(nil),
+	}
+
+	db.CreateTable(models, &orm.CreateTableOptions{
+		Temp: true, // temp table
+	})
+	err = db.Insert(&Basal2{
 		time: time.Now(),
 		uploadId: "upid4545",
 		deliveryType: "automated",
