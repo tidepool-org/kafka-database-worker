@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/go-pg/pg/v10"
-	//"github.com/go-pg/pg/v10/orm"
+	"github.com/go-pg/pg/v10/orm"
 )
 
 var (
@@ -27,6 +27,13 @@ type Basal struct {
 	scheduleName      string
 
 }
+
+func init() {
+	orm.SetTableNameInflector(func(s string) string {
+		return  s
+	})
+}
+
 func NewDbContext() context.Context {
 	ctx, _ := context.WithTimeout(context.Background(), ContextTimeout)
 	return ctx
