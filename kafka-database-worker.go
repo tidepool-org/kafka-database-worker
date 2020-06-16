@@ -34,14 +34,19 @@ func NewDbContext() context.Context {
 
 func writeToDatabase() {
 	// Connect to db
+	user := "postgres"
 	password, _ := os.LookupEnv("TIMESCALEDB_PASSWORD")
-	db := pg.Connect(&pg.Options{
-		Addr:     "timescaledb-single.timescaledb.svc.cluster.local:5432",
-		User:     "postgres",
-		Password: password,
+	host := "timescaledb-single.timescaledb.svc.cluster.local"
+	db_name := "postgres"
 
-		Database: "postgres",
-	})
+
+	url := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=allow", user, password, host, db_name)
+	opt, err := pg.ParseURL(url)
+	if err != nil {
+		panic(err)
+	}
+
+	db := pg.Connect(opt)
 	defer db.Close()
 	fmt.Println("Trying to connect to db")
 
@@ -63,7 +68,7 @@ func writeToDatabase() {
 	}
 
 	fmt.Println("Inserting into db")
-	err := db.Insert(basal)
+	err = db.Insert(basal)
 	if err != nil {
 		fmt.Println("Error inserting: ", err)
 		return
