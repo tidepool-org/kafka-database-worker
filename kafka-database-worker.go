@@ -15,16 +15,16 @@ var (
 )
 
 type Basal2 struct {
-	time              time.Time  `pg:"type:timestamptz"`
+	Time              time.Time  `pg:"type:timestamptz"`
 
-	uploadId          string
+	UploadId          string
 
-	deliveryType      string
-	duration          int64
-	expectedDuration  int64
-	rate              float64
-	percent           float64
-	scheduleName      string
+	DeliveryType      string
+	Duration          int64
+	ExpectedDuration  int64
+	Rate              float64
+	Percent           float64
+	ScheduleName      string
 
 }
 
@@ -93,11 +93,11 @@ func writeToDatabase() {
 
 	fmt.Println("Inserting into db")
 	err = db.Insert(&Basal2{
-		time: time.Now(),
-		uploadId: "upid4545",
-		deliveryType: "automated",
-		duration: 50,
-		rate: 45.45,
+		Time: time.Now(),
+		UploadId: "upid4545",
+		DeliveryType: "automated",
+		Duration: 50,
+		Rate: 45.45,
 	})
 
 	if err != nil {
