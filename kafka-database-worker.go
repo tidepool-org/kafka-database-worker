@@ -84,7 +84,7 @@ func writeToDatabase() {
 
 	fmt.Println("Creating table")
 	err  = db.CreateTable((*Basal2)(nil), &orm.CreateTableOptions{
-		Temp: true, // temp table
+		Temp: false, // temp table
 	})
 	if err != nil {
 		fmt.Println("Error creating: ", err)
