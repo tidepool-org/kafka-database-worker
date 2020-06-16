@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/go-pg/pg/v10"
@@ -33,9 +34,12 @@ func NewDbContext() context.Context {
 
 func writeToDatabase() {
 	// Connect to db
+	password, _ := os.LookupEnv("TIMESCALEDB_PASSWORD")
 	db := pg.Connect(&pg.Options{
 		Addr:     "timescaledb-single.timescaledb.svc.cluster.local:5432",
 		User:     "postgres",
+		Password: password,
+
 		Database: "postgres",
 	})
 	defer db.Close()
@@ -46,6 +50,7 @@ func writeToDatabase() {
 	// Check if connection credentials are valid and PostgreSQL is up and running.
 	if err := db.Ping(ctx); err != nil {
 		fmt.Println("Error: ", err)
+		return
 	}
 	fmt.Println("Connected successfully")
 
@@ -61,6 +66,7 @@ func writeToDatabase() {
 	err := db.Insert(basal)
 	if err != nil {
 		fmt.Println("Error inserting: ", err)
+		return
 	}
 	fmt.Println("inserted successfully")
 }
