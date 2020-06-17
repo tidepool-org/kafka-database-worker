@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 	"github.com/segmentio/kafka-go"
+	"encoding/json"
 
 
 	"github.com/go-pg/pg/v10"
@@ -108,7 +109,7 @@ func readFromQueue() {
 	host := "kafka-kafka-bootstrap.kafka.svc.cluster.local"
 	port := 9092
 	hostStr := fmt.Sprintf("%s:%d", host,port)
-	maxMessages := 4
+	maxMessages := 20
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	r := kafka.NewReader(kafka.ReaderConfig{
@@ -117,15 +118,25 @@ func readFromQueue() {
 		Partition: partition,
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
+		CommitInterval: 10*time.Second,
 	})
 
 
 	for i:=0; i<maxMessages; i++ {
-		m, err := r.ReadMessage(context.Background())
+		m, err := r.FetchMessage(context.Background())
 		if err != nil {
 			break
 		}
+		var rec map[string]interface{}
+
 		fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
+		if err := json.Unmarshal(m.Value, &rec); err != nil {
+			panic(err)
+			fmt.Println("Error Unmarshalling")
+		} else {
+
+		}
+		r.CommitMessages(context.Background(), m)
 	}
 
 	r.Close()
