@@ -2,7 +2,6 @@
 github.com/codemodus/kace
 github.com/codemodus/kace/ktrie
 # github.com/go-pg/pg/v10 v10.0.0-beta.2
-## explicit
 github.com/go-pg/pg/v10
 github.com/go-pg/pg/v10/internal
 github.com/go-pg/pg/v10/internal/parser
@@ -21,6 +20,9 @@ github.com/jinzhu/inflection
 # github.com/segmentio/encoding v0.1.13
 github.com/segmentio/encoding/ascii
 github.com/segmentio/encoding/json
+# github.com/segmentio/kafka-go v0.3.6
+github.com/segmentio/kafka-go
+github.com/segmentio/kafka-go/sasl
 # github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc
 github.com/tmthrgd/go-hex
 # github.com/vmihailenco/bufpool v0.1.11

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"github.com/segmentio/kafka-go"
+
 
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
@@ -100,10 +102,40 @@ func writeToDatabase() {
 	fmt.Println("inserted successfully")
 }
 
+func readFromQueue() {
+	topic := "database"
+	partition := 0
+	host := "kafka-kafka-bootstrap.kafka.svc.cluster.local"
+	port := 9092
+	hostStr := fmt.Sprintf("%s:%d", host,port)
+	maxMessages := 4
+
+	// make a new reader that consumes from topic-A, partition 0, at offset 42
+	r := kafka.NewReader(kafka.ReaderConfig{
+		Brokers:   []string{hostStr},
+		Topic:     topic,
+		Partition: partition,
+		MinBytes:  10e3, // 10KB
+		MaxBytes:  10e6, // 10MB
+	})
+
+
+	for i:=0; i<maxMessages; i++ {
+		m, err := r.ReadMessage(context.Background())
+		if err != nil {
+			break
+		}
+		fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
+	}
+
+	r.Close()
+}
+
 func main() {
 	fmt.Println("In main")
 	time.Sleep(10 * time.Second)
 	fmt.Println("Finished sleep")
+	readFromQueue()
 	writeToDatabase()
 	// Hack - do not quit for now
 	fmt.Println("Sleeping until the end of time")
