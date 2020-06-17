@@ -18,16 +18,16 @@ var (
 )
 
 type Basal struct {
-	Time              time.Time  `pg:"type:timestamptz"`
+	Time              time.Time  `json:"time" pg:"type:timestamptz"`
 
-	UploadId          string   `pg:"uploadid"`
+	UploadId          string   `json:"uploadId,omitempty" pg:"uploadid"`
 
-	DeliveryType      string   `pg:"deliverytype"`
-	Duration          int64
-	ExpectedDuration  int64   `pg:"expectedduration"`
-	Rate              float64
-	Percent           float64
-	ScheduleName      string   `pg:"schedulename"`
+	DeliveryType      string   `json:"deliveryType,omitempty" pg:"deliverytype"`
+	Duration          int64    `json:"duration,omitempty" pg:"duration"`
+	ExpectedDuration  int64    `json:"expectedDuration,omitempty" pg:"expectedduration"`
+	Rate              float64  `json:"rate,omitempty" pg:"rate"`
+	Percent           float64  `json:"percent,omitempty" pg:"percent"`
+	ScheduleName      string   `json:"scheduleName,omitempty" pg:"schedulename"`
 
 }
 
@@ -85,25 +85,10 @@ func writeToDatabase() {
 	}
 	fmt.Println("Connected successfully")
 
-
-	fmt.Println("Inserting into db")
-	err = db.Insert(&Basal{
-		Time: time.Now(),
-		UploadId: "upid4545",
-		DeliveryType: "automated",
-		Duration: 50,
-		Rate: 45.45,
-		ScheduleName: "test",
-	})
-
-	if err != nil {
-		fmt.Println("Error inserting: ", err)
-		return
-	}
-	fmt.Println("inserted successfully")
+	readFromQueue(db)
 }
 
-func readFromQueue() {
+func readFromQueue(db orm.DB) {
 	topic := "database"
 	partition := 0
 	host := "kafka-kafka-bootstrap.kafka.svc.cluster.local"
@@ -127,14 +112,19 @@ func readFromQueue() {
 		if err != nil {
 			break
 		}
-		var rec map[string]interface{}
+		var basal Basal
 
 		fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
-		if err := json.Unmarshal(m.Value, &rec); err != nil {
+		if err := json.Unmarshal(m.Value, &basal); err != nil {
 			panic(err)
 			fmt.Println("Error Unmarshalling")
 		} else {
+			err = db.Insert(basal)
 
+			if err != nil {
+				fmt.Println("Error inserting: ", err)
+				return
+			}
 		}
 		r.CommitMessages(context.Background(), m)
 	}
@@ -146,7 +136,6 @@ func main() {
 	fmt.Println("In main")
 	time.Sleep(10 * time.Second)
 	fmt.Println("Finished sleep")
-	readFromQueue()
 	writeToDatabase()
 	// Hack - do not quit for now
 	fmt.Println("Sleeping until the end of time")
