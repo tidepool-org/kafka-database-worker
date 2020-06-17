@@ -119,11 +119,10 @@ func readFromQueue(db orm.DB) {
 			fmt.Println("Error Unmarshalling", err)
 			continue
 		} else {
-			err = db.Insert(basal)
+			err = db.Insert(&basal)
 
 			if err != nil {
 				fmt.Println("Error inserting: ", err)
-				return
 			}
 		}
 		r.CommitMessages(context.Background(), m)
