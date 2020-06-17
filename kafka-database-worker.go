@@ -116,8 +116,8 @@ func readFromQueue(db orm.DB) {
 
 		fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 		if err := json.Unmarshal(m.Value, &basal); err != nil {
-			panic(err)
-			fmt.Println("Error Unmarshalling")
+			fmt.Println("Error Unmarshalling", err)
+			continue
 		} else {
 			err = db.Insert(basal)
 
