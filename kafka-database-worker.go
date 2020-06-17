@@ -94,7 +94,7 @@ func readFromQueue(db orm.DB) {
 	host := "kafka-kafka-bootstrap.kafka.svc.cluster.local"
 	port := 9092
 	hostStr := fmt.Sprintf("%s:%d", host,port)
-	maxMessages := 20
+	maxMessages := 10000
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	r := kafka.NewReader(kafka.ReaderConfig{
