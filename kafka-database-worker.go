@@ -135,7 +135,10 @@ func main() {
 	fmt.Println("In main")
 	time.Sleep(10 * time.Second)
 	fmt.Println("Finished sleep")
+
+	startTime := time.Now()
 	writeToDatabase()
+	fmt.Printf("Duration in seconds: %f\n", time.Now().Sub(startTime).Seconds())
 	// Hack - do not quit for now
 	fmt.Println("Sleeping until the end of time")
 	for {
