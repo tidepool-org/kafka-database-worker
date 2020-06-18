@@ -103,6 +103,7 @@ func readFromQueue(db orm.DB) {
 	for i:=0; i<maxMessages; i++ {
 		m, err := r.FetchMessage(context.Background())
 		if err != nil {
+			fmt.Println("Error fetching message: ", err)
 			break
 		}
 
@@ -113,7 +114,6 @@ func readFromQueue(db orm.DB) {
 		var rec map[string]interface{}
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
 			fmt.Println("Error Unmarshalling", err)
-			continue
 		} else {
 			source, source_ok := rec["source"]
 			data, data_ok := rec["data"]
