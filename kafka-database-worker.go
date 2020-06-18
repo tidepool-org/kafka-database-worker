@@ -8,6 +8,7 @@ import (
 	"github.com/segmentio/kafka-go"
 	"encoding/json"
 
+    "github.com/mitchellh/mapstructure"
 
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
@@ -18,18 +19,20 @@ var (
 )
 
 type Basal struct {
-	Time              time.Time  `json:"time" pg:"type:timestamptz"`
+	Time              time.Time  `mapstructure:"time" pg:"type:timestamptz"`
 
-	UploadId          string   `json:"uploadId,omitempty" pg:"uploadid"`
+	UploadId          string   `mapstructure:"uploadId,omitempty" pg:"uploadid"`
 
-	DeliveryType      string   `json:"deliveryType,omitempty" pg:"deliverytype"`
-	Duration          int64    `json:"duration,omitempty" pg:"duration"`
-	ExpectedDuration  int64    `json:"expectedDuration,omitempty" pg:"expectedduration"`
-	Rate              float64  `json:"rate,omitempty" pg:"rate"`
-	Percent           float64  `json:"percent,omitempty" pg:"percent"`
-	ScheduleName      string   `json:"scheduleName,omitempty" pg:"schedulename"`
+	DeliveryType      string   `mapstructure:"deliveryType,omitempty" pg:"deliverytype"`
+	Duration          int64    `mapstructure:"duration,omitempty" pg:"duration"`
+	ExpectedDuration  int64    `mapstructure:"expectedDuration,omitempty" pg:"expectedduration"`
+	Rate              float64  `mapstructure:"rate,omitempty" pg:"rate"`
+	Percent           float64  `mapstructure:"percent,omitempty" pg:"percent"`
+	ScheduleName      string   `mapstructure:"scheduleName,omitempty" pg:"schedulename"`
+	Active            bool    `mapstructure:"_active"`
 
 }
+
 
 func init() {
 	orm.SetTableNameInflector(func(s string) string {
@@ -115,15 +118,29 @@ func readFromQueue(db orm.DB) {
 		var basal Basal
 
 		fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
-		if err := json.Unmarshal(m.Value, &basal); err != nil {
+		var rec map[string]interface{}
+		if err := json.Unmarshal(m.Value, &rec); err != nil {
 			fmt.Println("Error Unmarshalling", err)
 			continue
 		} else {
-			err = db.Insert(&basal)
+			source, source_ok := rec["source"]
+			data, data_ok := rec["data"]
+			if data_ok && source_ok && source == "database"{
 
-			if err != nil {
-				fmt.Println("Error inserting: ", err)
+				if err := mapstructure.Decode(data, &basal); err != nil {
+					fmt.Println("Error decoding: ", err)
+				} else {
+					// NOTE - this has an issue if _active is not passed in
+					if basal.Active {
+						if err = db.Insert(&basal); err != nil {
+							fmt.Println("Error inserting: ", err)
+						}
+					} else {
+						fmt.Println("Record not active")
+					}
+				}
 			}
+
 		}
 		r.CommitMessages(context.Background(), m)
 	}
