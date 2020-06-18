@@ -8,7 +8,8 @@ import (
 	"github.com/segmentio/kafka-go"
 	"encoding/json"
 
-    "github.com/mitchellh/mapstructure"
+	"github.com/tidepool.org/kafka-database-worker/models"
+
 
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
@@ -18,20 +19,7 @@ var (
 	ContextTimeout = time.Duration(20)*time.Second
 )
 
-type Basal struct {
-	Time              time.Time  `mapstructure:"time" pg:"type:timestamptz"`
 
-	UploadId          string   `mapstructure:"uploadId,omitempty" pg:"uploadid"`
-
-	DeliveryType      string   `mapstructure:"deliveryType,omitempty" pg:"deliverytype"`
-	Duration          int64    `mapstructure:"duration,omitempty" pg:"duration"`
-	ExpectedDuration  int64    `mapstructure:"expectedDuration,omitempty" pg:"expectedduration"`
-	Rate              float64  `mapstructure:"rate,omitempty" pg:"rate"`
-	Percent           float64  `mapstructure:"percent,omitempty" pg:"percent"`
-	ScheduleName      string   `mapstructure:"scheduleName,omitempty" pg:"schedulename"`
-	Active            bool    `mapstructure:"_active" pg:"-"`
-
-}
 
 
 func init() {
@@ -97,7 +85,7 @@ func readFromQueue(db orm.DB) {
 	host := "kafka-kafka-bootstrap.kafka.svc.cluster.local"
 	port := 9092
 	hostStr := fmt.Sprintf("%s:%d", host,port)
-	maxMessages := 300000
+	maxMessages := 1000
 	startTime := time.Now()
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
@@ -117,7 +105,6 @@ func readFromQueue(db orm.DB) {
 		if err != nil {
 			break
 		}
-		var basal Basal
 
 		if i % 1000 == 0 {
 			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
@@ -132,27 +119,14 @@ func readFromQueue(db orm.DB) {
 			data, data_ok := rec["data"]
 			if data_ok && source_ok && source == "database"{
 
-				decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-					DecodeHook: mapstructure.StringToTimeHookFunc(time.RFC3339),
-					Result: &basal,
-				} )
-				if err != nil {
-					fmt.Println("Can not create decoder: ", err)
-				}
-				if err := decoder.Decode(data); err != nil {
-					fmt.Println("Error decoding: ", err)
-				} else {
-					// NOTE - this has an issue if _active is not passed in
-					if basal.Active {
-						if err = db.Insert(&basal); err != nil {
-							fmt.Println("Error inserting: ", err)
-						}
-					} else {
-						fmt.Println("Record not active")
+				if model := models.DecodeModel(data); model != nil {
+					if err = db.Insert(&model); err != nil {
+						fmt.Println("Error inserting: ", err)
 					}
+				} else {
+					fmt.Printf("Model nil - not decoded %v\n", data)
 				}
 			}
-
 		}
 		r.CommitMessages(context.Background(), m)
 	}
