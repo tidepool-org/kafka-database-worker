@@ -7,8 +7,8 @@ import (
 )
 
 type BaseModel struct {
-	Type      string `mapstructure:"type""`
-	Active    bool `mapstructure:"_active""`
+	Type      string `mapstructure:"type"`
+	Active    bool `mapstructure:"_active"`
 }
 
 func DecodeModel(data interface{}) interface{} {
@@ -27,6 +27,8 @@ func DecodeModel(data interface{}) interface{} {
 			fmt.Println("Decoding basal")
 			basal := DecodeBasal(data)
 			return basal
+		default:
+			fmt.Println("Currently not handling type: ", baseModel.Type)
 		}
 	} else {
 		fmt.Println("Base Model not active")

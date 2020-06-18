@@ -120,7 +120,7 @@ func readFromQueue(db orm.DB) {
 			if data_ok && source_ok && source == "database"{
 
 				if model := models.DecodeModel(data); model != nil {
-					if err = db.Insert(&model); err != nil {
+					if err = db.Insert(model); err != nil {
 						fmt.Println("Error inserting: ", err)
 					}
 				} else {

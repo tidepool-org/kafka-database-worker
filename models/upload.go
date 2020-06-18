@@ -9,9 +9,9 @@ import (
 type Upload struct {
 	CreatedTime    time.Time `mapstructure:"createdTime" pg:"created_time type:timestamptz"`
 	DeviceId       string    `mapstructure:"deviceId" pg:"device_id"`
-	id             string    `mapstructure:"id" pg:"id"`
+	Id             string    `mapstructure:"id" pg:"id"`
 
-	time           time.Time `mapstructure:"time" pg:"time"`
+	Time           time.Time `mapstructure:"time" pg:"time"`
 	Timezone       string    `mapstructure:"timezone" pg:"timezone"`
 
 	UploadId       string    `mapstructure:"uploadId" pg:"upload_id"`
