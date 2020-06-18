@@ -29,7 +29,7 @@ type Basal struct {
 	Rate              float64  `mapstructure:"rate,omitempty" pg:"rate"`
 	Percent           float64  `mapstructure:"percent,omitempty" pg:"percent"`
 	ScheduleName      string   `mapstructure:"scheduleName,omitempty" pg:"schedulename"`
-	Active            bool    `mapstructure:"_active"`
+	active            bool    `mapstructure:"_active"`
 
 }
 
@@ -139,7 +139,7 @@ func readFromQueue(db orm.DB) {
 					fmt.Println("Error decoding: ", err)
 				} else {
 					// NOTE - this has an issue if _active is not passed in
-					if basal.Active {
+					if basal.active {
 						if err = db.Insert(&basal); err != nil {
 							fmt.Println("Error inserting: ", err)
 						}
