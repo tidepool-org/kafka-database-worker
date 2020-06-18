@@ -110,6 +110,7 @@ func readFromQueue(db orm.DB) {
 	})
 
 
+
 	for i:=0; i<maxMessages; i++ {
 		m, err := r.FetchMessage(context.Background())
 		if err != nil {
@@ -127,7 +128,14 @@ func readFromQueue(db orm.DB) {
 			data, data_ok := rec["data"]
 			if data_ok && source_ok && source == "database"{
 
-				if err := mapstructure.Decode(data, &basal); err != nil {
+				decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+					DecodeHook: mapstructure.StringToTimeHookFunc(time.RFC3339),
+					Result: &basal,
+				} )
+				if err != nil {
+					fmt.Println("Can not create decoder: ", err)
+				}
+				if err := decoder.Decode(data); err != nil {
 					fmt.Println("Error decoding: ", err)
 				} else {
 					// NOTE - this has an issue if _active is not passed in
