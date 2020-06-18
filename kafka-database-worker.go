@@ -139,7 +139,7 @@ func readFromQueue(db orm.DB) {
 					fmt.Println("Error decoding: ", err)
 				} else {
 					// NOTE - this has an issue if _active is not passed in
-					if basal.active {
+					if basal.Active {
 						if err = db.Insert(&basal); err != nil {
 							fmt.Println("Error inserting: ", err)
 						}
