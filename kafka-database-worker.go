@@ -97,7 +97,8 @@ func readFromQueue(db orm.DB) {
 	host := "kafka-kafka-bootstrap.kafka.svc.cluster.local"
 	port := 9092
 	hostStr := fmt.Sprintf("%s:%d", host,port)
-	maxMessages := 10000
+	maxMessages := 300000
+	startTime := time.Now()
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	r := kafka.NewReader(kafka.ReaderConfig{
@@ -118,7 +119,10 @@ func readFromQueue(db orm.DB) {
 		}
 		var basal Basal
 
-		fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
+		if i % 1000 == 0 {
+			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
+			fmt.Printf("Duration so far in seconds: %f\n", time.Now().Sub(startTime).Seconds())
+		}
 		var rec map[string]interface{}
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
 			fmt.Println("Error Unmarshalling", err)
