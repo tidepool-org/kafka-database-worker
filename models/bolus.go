@@ -7,7 +7,7 @@ import (
 )
 
 type Bolus struct {
-	*Base
+	*Base                    `pg:",inherit"`
 
 	Normal         float64   `mapstructure:"normal" pg:"normal"`
 

@@ -7,7 +7,7 @@ import (
 )
 
 type Smbg struct {
-	*Base
+	*Base                    `pg:",inherit"`
 
 	Units          string    `mapstructure:"units" pg:"units"`
 

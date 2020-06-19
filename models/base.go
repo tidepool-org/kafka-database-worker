@@ -5,7 +5,7 @@ import (
 )
 
 type Base struct {
-	Time              time.Time  `mapstructure:"time" pg:"type:timestamptz"`
+	Time              time.Time  `mapstructure:"time" pg:"time type:timestamptz"`
 
 	CreatedTime       time.Time  `mapstructure:"createdTime" pg:"created_time type:timestamptz"`
 	ModifiedTime      time.Time  `mapstructure:"modifiedTime" pg:"modified_time type:timestamptz"`

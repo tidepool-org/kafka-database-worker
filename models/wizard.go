@@ -7,7 +7,7 @@ import (
 )
 
 type Wizard struct {
-	*Base
+	*Base                    `pg:",inherit"`
 
 	Bolus          string    `mapstructure:"bolus" pg:"bolus"`
 	Units          string    `mapstructure:"units" pg:"units"`
