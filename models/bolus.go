@@ -7,7 +7,7 @@ import (
 )
 
 type Bolus struct {
-	*Base                    `mapstructure:",squash"`
+	Base                    `mapstructure:",squash"`
 
 	Normal         float64   `mapstructure:"normal" pg:"normal"`
 

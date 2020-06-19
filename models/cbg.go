@@ -7,7 +7,7 @@ import (
 )
 
 type Cbg struct {
-	*Base                    `mapstructure:",squash"`
+	Base                    `mapstructure:",squash"`
 
 	SubType        string    `mapstructure:"subType" pg:"sub_type"`
 
