@@ -1,4 +1,4 @@
-CREATE TABLE basal (
+CREATE TABLE wizard (
     time                 TIMESTAMPTZ NOT NULL,
 
     created_time         TIMESTAMPTZ NULL,
@@ -18,13 +18,15 @@ CREATE TABLE basal (
 
     revision             INT Null,
 
-    delivery_type      TEXT NULL,
-    duration           INT,
-    expected_duration  INT,
-    rate               DOUBLE PRECISION  NULL,
-    percent            DOUBLE PRECISION  NULL,
-    schedule_name      TEXT NULL
+    bg_input             DOUBLE PRECISION  NULL,
+    carb_input           DOUBLE PRECISION  NULL,
+    insulin_carb_input   DOUBLE PRECISION  NULL,
+
+    bolus                Text Null,
+    units                Text Null,
+
+    recommended          json NULL
 );
 
-SELECT create_hypertable('basal', 'time');
+SELECT create_hypertable('wizard', 'time');
 

@@ -1,5 +1,5 @@
 CREATE TABLE upload (
-  created_time         TIMESTAMPTZ NOT NULL,
+  created_time         TIMESTAMPTZ NULL,
 
   device_id            TEXT NULL,
   id                   Text Null,

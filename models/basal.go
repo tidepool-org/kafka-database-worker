@@ -7,9 +7,7 @@ import (
 )
 
 type Basal struct {
-	Time              time.Time  `mapstructure:"time" pg:"type:timestamptz"`
-
-	UploadId          string   `mapstructure:"uploadId,omitempty" pg:"upload_id"`
+	*Base
 
 	DeliveryType      string   `mapstructure:"deliveryType,omitempty" pg:"delivery_type"`
 	Duration          int64    `mapstructure:"duration,omitempty" pg:"duration"`

@@ -7,15 +7,7 @@ import (
 )
 
 type Upload struct {
-	CreatedTime    time.Time `mapstructure:"createdTime" pg:"created_time type:timestamptz"`
-	DeviceId       string    `mapstructure:"deviceId" pg:"device_id"`
-	Id             string    `mapstructure:"id" pg:"id"`
-
-	Time           time.Time `mapstructure:"time" pg:"time"`
-	Timezone       string    `mapstructure:"timezone" pg:"timezone"`
-
-	UploadId       string    `mapstructure:"uploadId" pg:"upload_id"`
-	UserId         string    `mapstructure:"_userId" pg:"user_id"`
+	*Base
 
 	DataSetType    string    `mapstructure:"dataSetType" pg:"data_set_type"`
 	DataState      string    `mapstructure:"_dataState" pg:"data_state"`
@@ -23,7 +15,6 @@ type Upload struct {
 	DeviceSerialNumber string `mapstructure:"deviceSerialNumber" pg:"device_serial_number"`
 	State          string    `mapstructure:"_state" pg:"state"`
 	Version        string    `mapstructure:"version" pg:"version"`
-	ModifiedTime   time.Time `mapstructure:"modifiedTime" pg:"modified_time"`
 	Revision       int64     `mapstructure:"revision" pg:"revision"`
 }
 

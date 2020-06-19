@@ -1,4 +1,4 @@
-CREATE TABLE basal (
+CREATE TABLE cbg (
     time                 TIMESTAMPTZ NOT NULL,
 
     created_time         TIMESTAMPTZ NULL,
@@ -18,13 +18,9 @@ CREATE TABLE basal (
 
     revision             INT Null,
 
-    delivery_type      TEXT NULL,
-    duration           INT,
-    expected_duration  INT,
-    rate               DOUBLE PRECISION  NULL,
-    percent            DOUBLE PRECISION  NULL,
-    schedule_name      TEXT NULL
+    value               DOUBLE PRECISION  NULL,
+
+    sub_type            Text Null
 );
 
-SELECT create_hypertable('basal', 'time');
-
+SELECT create_hypertable('cbg', 'time');
