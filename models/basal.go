@@ -9,14 +9,14 @@ import (
 type Basal struct {
 	Time              time.Time  `mapstructure:"time" pg:"type:timestamptz"`
 
-	UploadId          string   `mapstructure:"uploadId,omitempty" pg:"uploadid"`
+	UploadId          string   `mapstructure:"uploadId,omitempty" pg:"upload_id"`
 
-	DeliveryType      string   `mapstructure:"deliveryType,omitempty" pg:"deliverytype"`
+	DeliveryType      string   `mapstructure:"deliveryType,omitempty" pg:"delivery_type"`
 	Duration          int64    `mapstructure:"duration,omitempty" pg:"duration"`
-	ExpectedDuration  int64    `mapstructure:"expectedDuration,omitempty" pg:"expectedduration"`
+	ExpectedDuration  int64    `mapstructure:"expectedDuration,omitempty" pg:"expected_duration"`
 	Rate              float64  `mapstructure:"rate,omitempty" pg:"rate"`
 	Percent           float64  `mapstructure:"percent,omitempty" pg:"percent"`
-	ScheduleName      string   `mapstructure:"scheduleName,omitempty" pg:"schedulename"`
+	ScheduleName      string   `mapstructure:"scheduleName,omitempty" pg:"schedule_name"`
 	Active            bool    `mapstructure:"_active" pg:"-"`
 }
 
