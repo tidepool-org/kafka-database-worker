@@ -9,7 +9,7 @@ import (
 type Smbg struct {
 	tableName struct{} `pg:"smbg"`
 
-	*Base                    `pg:",inherit"`
+	*Base
 
 	Units          string    `mapstructure:"units" pg:"units"`
 

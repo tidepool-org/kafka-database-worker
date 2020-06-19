@@ -9,7 +9,7 @@ import (
 type Cbg struct {
 	tableName struct{} `pg:"cbg"`
 
-	*Base                    `pg:",inherit"`
+	*Base
 
 	SubType        string    `mapstructure:"subType" pg:"sub_type"`
 

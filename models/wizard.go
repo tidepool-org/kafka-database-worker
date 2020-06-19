@@ -9,7 +9,7 @@ import (
 type Wizard struct {
 	tableName struct{} `pg:"wizard"`
 
-	*Base                    `pg:",inherit"`
+	*Base
 
 	Bolus          string    `mapstructure:"bolus" pg:"bolus"`
 	Units          string    `mapstructure:"units" pg:"units"`

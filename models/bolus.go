@@ -9,7 +9,7 @@ import (
 type Bolus struct {
 	tableName struct{} `pg:"bolus"`
 
-	*Base                    `pg:",inherit"`
+	*Base
 
 	Normal         float64   `mapstructure:"normal" pg:"normal"`
 
