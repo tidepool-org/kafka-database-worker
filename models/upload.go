@@ -7,9 +7,7 @@ import (
 )
 
 type Upload struct {
-	tableName struct{} `pg:"upload"`
-
-	*Base
+	*Base                    `mapstructure:",squash"`
 
 	DataSetType    string    `mapstructure:"dataSetType" pg:"data_set_type"`
 	DataState      string    `mapstructure:"_dataState" pg:"data_state"`

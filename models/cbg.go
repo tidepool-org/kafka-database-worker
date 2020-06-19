@@ -7,9 +7,7 @@ import (
 )
 
 type Cbg struct {
-	tableName struct{} `pg:"cbg"`
-
-	*Base
+	*Base                    `mapstructure:",squash"`
 
 	SubType        string    `mapstructure:"subType" pg:"sub_type"`
 

@@ -7,9 +7,7 @@ import (
 )
 
 type Smbg struct {
-	tableName struct{} `pg:"smbg"`
-
-	*Base
+	*Base                    `mapstructure:",squash"`
 
 	Units          string    `mapstructure:"units" pg:"units"`
 

@@ -7,9 +7,7 @@ import (
 )
 
 type Basal struct {
-	tableName struct{} `pg:"basal"`
-
-	*Base
+	*Base                      `mapstructure:",squash"`
 
 	DeliveryType      string   `mapstructure:"deliveryType,omitempty" pg:"delivery_type"`
 	Duration          int64    `mapstructure:"duration,omitempty" pg:"duration"`
