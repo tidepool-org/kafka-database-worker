@@ -95,7 +95,7 @@ func readFromQueue(db orm.DB) {
 		Partition: partition,
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
-		CommitInterval: 4000*time.Second,
+		CommitInterval: 10*time.Second,
 	})
 
 
