@@ -7,6 +7,8 @@ import (
 )
 
 type Basal struct {
+	tableName struct{} `pg:"basal"`
+
 	*Base                      `pg:",inherit"`
 
 	DeliveryType      string   `mapstructure:"deliveryType,omitempty" pg:"delivery_type"`

@@ -7,6 +7,8 @@ import (
 )
 
 type Upload struct {
+	tableName struct{} `pg:"upload"`
+
 	*Base
 
 	DataSetType    string    `mapstructure:"dataSetType" pg:"data_set_type"`
@@ -15,7 +17,6 @@ type Upload struct {
 	DeviceSerialNumber string `mapstructure:"deviceSerialNumber" pg:"device_serial_number"`
 	State          string    `mapstructure:"_state" pg:"state"`
 	Version        string    `mapstructure:"version" pg:"version"`
-	Revision       int64     `mapstructure:"revision" pg:"revision"`
 }
 
 func DecodeUpload(data interface{}) *Upload {

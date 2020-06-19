@@ -1,23 +1,29 @@
 CREATE TABLE upload (
-  created_time         TIMESTAMPTZ NOT NULL,
+    time                 TIMESTAMPTZ NOT NULL,
 
-  device_id            TEXT NULL,
-  id                   Text Null,
+    created_time         TIMESTAMPTZ NULL,
+    modified_time        TIMESTAMPTZ NULL,
+    device_time          TIMESTAMPTZ NULL,
 
-  time                 TIMESTAMPTZ NULL,
-  timezone             Text Null,
+    device_id            TEXT NULL,
+    id                   Text Null,
 
-  upload_id            Text Null,
-  user_id              Text Null,
+    timezone             Text Null,
+    timezone_offset      INT NULL,
+    clock_drift_offset   INT NULL,
+    conversion_offset    INT NULL,
 
-  data_set_type        Text Null,
-  data_state           Text Null,
+    upload_id            Text Null,
+    user_id              Text Null,
 
-  device_serial_number Text Null,
-  state                Text Null,
-  version              Text Null,
-  modified_time        TIMESTAMPTZ NULL,
-  revision             Text Null
+    revision             INT Null,
+
+    data_set_type        Text Null,
+    data_state           Text Null,
+
+    device_serial_number Text Null,
+    state                Text Null,
+    version              Text Null
 );
 
 
