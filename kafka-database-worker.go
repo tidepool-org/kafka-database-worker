@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 	"github.com/segmentio/kafka-go"
 	"encoding/json"
@@ -41,7 +42,10 @@ func (d dbLogger) BeforeQuery(c context.Context, q *pg.QueryEvent) (context.Cont
 
 func (d dbLogger) AfterQuery(c context.Context, q *pg.QueryEvent) error {
 	b, _ := q.FormattedQuery()
-	fmt.Println("Query: ", string(b))
+	s := string(b)
+	if strings.Contains(s, "wizard") {
+		fmt.Println("Query: ", s)
+	}
 	return nil
 }
 
@@ -66,7 +70,7 @@ func writeToDatabase() {
 
 	ctx := NewDbContext()
 
-	//db.AddQueryHook(dbLogger{})
+	db.AddQueryHook(dbLogger{})
 
 
 	// Check if connection credentials are valid and PostgreSQL is up and running.
