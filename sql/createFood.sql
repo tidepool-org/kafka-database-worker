@@ -1,4 +1,4 @@
-CREATE TABLE device_event (
+CREATE TABLE food (
     time                 TIMESTAMPTZ NOT NULL,
 
     created_time         TIMESTAMPTZ NULL,
@@ -18,20 +18,7 @@ CREATE TABLE device_event (
 
     revision             INT Null,
 
-    sub_type             Text Null,
-    units                Text Null,
-
-    value                DOUBLE PRECISION Null,
-
-    duration             INT Null,
-    reason               Text Null,
-
-    primeTaget           Text Null,
-    volume               DOUBLE PRECISION Null
-
+    nutrition            jsonb Null
 );
 
-SELECT create_hypertable('device_event', 'time');
-
-
-
+SELECT create_hypertable('food', 'time');

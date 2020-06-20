@@ -43,6 +43,15 @@ func DecodeModel(data interface{}) interface{} {
 		case "wizard":
 			wizard := DecodeWizard(data)
 			return wizard
+		case "food":
+			food := DecodeFood(data)
+			return food
+		case "deviceEvent":
+			food := DecodeDeviceEvent(data)
+			return food
+		case "pumpSetting":
+			food := DecodePumpSettings(data)
+			return food
 		default:
 			fmt.Println("Currently not handling type: ", baseModel.Type)
 		}
