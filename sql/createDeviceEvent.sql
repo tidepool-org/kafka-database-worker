@@ -26,7 +26,7 @@ CREATE TABLE device_event (
     duration             INT Null,
     reason               Text Null,
 
-    primeTaget           Text Null,
+    prime_target          Text Null,
     volume               DOUBLE PRECISION Null
 
 );

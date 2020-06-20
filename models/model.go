@@ -49,7 +49,7 @@ func DecodeModel(data interface{}) interface{} {
 		case "deviceEvent":
 			food := DecodeDeviceEvent(data)
 			return food
-		case "pumpSetting":
+		case "pumpSettings":
 			food := DecodePumpSettings(data)
 			return food
 		default:

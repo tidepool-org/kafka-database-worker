@@ -70,7 +70,7 @@ func writeToDatabase() {
 
 	ctx := NewDbContext()
 
-	db.AddQueryHook(dbLogger{})
+	//db.AddQueryHook(dbLogger{})
 
 
 	// Check if connection credentials are valid and PostgreSQL is up and running.
