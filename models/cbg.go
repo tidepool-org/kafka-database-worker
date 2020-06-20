@@ -18,7 +18,7 @@ func DecodeCbg(data interface{}) *Cbg {
 	var cbg = Cbg{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		DecodeHook: mapstructure.StringToTimeHookFunc(time.RFC3339),
+		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &cbg,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {

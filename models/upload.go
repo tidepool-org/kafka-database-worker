@@ -21,7 +21,7 @@ func DecodeUpload(data interface{}) *Upload {
 	var upload = Upload{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		DecodeHook: mapstructure.StringToTimeHookFunc(time.RFC3339),
+		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &upload,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {

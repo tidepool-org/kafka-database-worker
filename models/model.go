@@ -3,7 +3,9 @@ package models
 import (
 	"github.com/mitchellh/mapstructure"
 	"fmt"
-
+	"strings"
+	"time"
+	"reflect"
 )
 
 var Active = 0
@@ -48,4 +50,27 @@ func DecodeModel(data interface{}) interface{} {
 		Inactive += 1
 	}
 	return nil
+}
+
+// StringToTimeHookFuncTimezoneOptional returns a DecodeHookFunc that converts
+// strings to time.Time.  If time does not have a timezone - appends a Z for UTC timezone
+func StringToTimeHookFuncTimezoneOptional(layout string) mapstructure.DecodeHookFunc {
+	return func(
+		f reflect.Type,
+		t reflect.Type,
+		data interface{}) (interface{}, error) {
+		if f.Kind() != reflect.String {
+			return data, nil
+		}
+		if t != reflect.TypeOf(time.Time{}) {
+			return data, nil
+		}
+
+		// Convert it by parsing
+		s := data.(string)
+		if !strings.Contains(s, "Z") {
+			s += "Z"
+		}
+		return time.Parse(layout, s)
+	}
 }

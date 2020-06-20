@@ -18,7 +18,7 @@ func DecodeBolus(data interface{}) *Bolus {
 	var bolus = Bolus{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		DecodeHook: mapstructure.StringToTimeHookFunc(time.RFC3339),
+		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &bolus,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {

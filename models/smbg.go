@@ -18,7 +18,7 @@ func DecodeSmbg(data interface{}) *Smbg {
 	var smbg = Smbg{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		DecodeHook: mapstructure.StringToTimeHookFunc(time.RFC3339),
+		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &smbg,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
