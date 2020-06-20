@@ -68,7 +68,7 @@ func StringToTimeHookFuncTimezoneOptional(layout string) mapstructure.DecodeHook
 
 		// Convert it by parsing
 		s := data.(string)
-		if !strings.Contains(s, "Z") {
+		if !strings.Contains(s, "Z") && !strings.Contains(s, "+") {
 			s += "Z"
 		}
 		return time.Parse(layout, s)

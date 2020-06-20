@@ -22,7 +22,6 @@ CREATE TABLE bolus (
 
     sub_type            Text Null,
 
-    recommended          json NULL
 );
 
 

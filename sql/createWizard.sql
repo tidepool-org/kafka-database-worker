@@ -25,7 +25,7 @@ CREATE TABLE wizard (
     bolus                Text Null,
     units                Text Null,
 
-    recommended          json NULL
+    recommended          jsonb NULL
 );
 
 SELECT create_hypertable('wizard', 'time');

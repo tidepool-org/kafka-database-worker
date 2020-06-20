@@ -12,7 +12,7 @@ type Wizard struct {
 	Bolus          string    `mapstructure:"bolus" pg:"bolus"`
 	Units          string    `mapstructure:"units" pg:"units"`
 
-	Recommended    string    `mapstructure:"recommended" pg:"recommended"`
+	Recommended    map[interface{}]interface{}    `mapstructure:"recommended" pg:"recommended"`
 
 }
 
