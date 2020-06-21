@@ -52,6 +52,9 @@ func DecodeModel(data interface{}) interface{} {
 		case "pumpSettings":
 			food := DecodePumpSettings(data)
 			return food
+		case "physicalActivity":
+			physicalActivity := DecodePhysicalActivity(data)
+			return physicalActivity
 		default:
 			fmt.Println("Currently not handling type: ", baseModel.Type)
 		}
