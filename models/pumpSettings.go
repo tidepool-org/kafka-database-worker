@@ -15,13 +15,13 @@ type PumpSettings struct {
 	BasalSchedulesMap       map[string]interface{}      `mapstructure:"nutrition" pg:"-"`
 	BasalSchedulesJson      string                      `pg:"nutrition"`
 
-	BgTargetMap             map[string][]interface{}      `mapstructure:"bgTarget" pg:"-"`
+	BgTargetMap             []interface{}      `mapstructure:"bgTarget" pg:"-"`
 	BgTargetJson            string                      `pg:"bg_target"`
 
-	CarbRatioMap            map[string][]interface{}      `mapstructure:"carbRatio" pg:"-"`
+	CarbRatioMap            []interface{}      `mapstructure:"carbRatio" pg:"-"`
 	CarbRatioJson           string                      `pg:"carb_ratio"`
 
-	InsulinSensitivityMap   map[string][]interface{}      `mapstructure:"insulinSensitivity" pg:"-"`
+	InsulinSensitivityMap   []interface{}      `mapstructure:"insulinSensitivity" pg:"-"`
 	InsulinSensitivityJson  string                      `pg:"insulin_sensitivity"`
 
 	unitsMap                map[string]interface{}      `mapstructure:"units" pg:"-"`
