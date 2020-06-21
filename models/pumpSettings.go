@@ -12,8 +12,8 @@ type PumpSettings struct {
 
 	ActiveSchedule          string                      `mapstructure:"activeSchedule" pg:"active_schedule"`
 
-	BasalSchedulesMap       map[string]interface{}      `mapstructure:"nutrition" pg:"-"`
-	BasalSchedulesJson      string                      `pg:"nutrition"`
+	BasalSchedulesMap       map[string]interface{}      `mapstructure:"basalSchedules" pg:"-"`
+	BasalSchedulesJson      string                      `pg:"basal_schedules"`
 
 	BgTargetMap             []interface{}      `mapstructure:"bgTarget" pg:"-"`
 	BgTargetJson            string                      `pg:"bg_target"`
