@@ -125,6 +125,7 @@ func readFromQueue(db orm.DB) {
 				insertErrors += 1
 			}
 			timeseriesTime += time.Now().Sub(timeseriesStartTime).Nanoseconds()
+			modelArray = make([]interface{}, 0)
 			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 			fmt.Printf("Duration seconds: %f,  kafakTime (ms): %d,  TimeseriesTime (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
 			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d", i, archived, insertErrors)
