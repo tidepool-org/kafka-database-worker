@@ -106,7 +106,7 @@ func readFromQueue(db orm.DB) {
 
 	kafkaTime := int64(0)
 	timeseriesTime := int64(0)
-	var modelArray []interface{}
+	var modelMap map[string][]interface{}
 	for i:=0; i<maxMessages; i++ {
 		archived := 0
 		insertErrors := 1
@@ -118,14 +118,19 @@ func readFromQueue(db orm.DB) {
 			break
 		}
 
-		if (i-1) % 1000 == 0 {
+		if (i-1) % 10000 == 0 {
 			timeseriesStartTime := time.Now()
-			if err := db.Insert(modelArray...); err != nil {
-				fmt.Println("Error inserting: ", err)
-				insertErrors += 1
+
+			for _, val := range modelMap {
+				if len(val) > 0 {
+					if err := db.Insert(val...); err != nil {
+						fmt.Println("Error inserting: ", err)
+						insertErrors += 1
+					}
+				}
 			}
 			timeseriesTime += time.Now().Sub(timeseriesStartTime).Nanoseconds()
-			modelArray = make([]interface{}, 0)
+			modelMap = make(map[string][]interface{})
 			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 			fmt.Printf("Duration seconds: %f,  kafakTime (ms): %d,  TimeseriesTime (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
 			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d", i, archived, insertErrors)
@@ -138,8 +143,13 @@ func readFromQueue(db orm.DB) {
 			data, data_ok := rec["data"]
 			if data_ok && source_ok && source == "database"{
 
-				if model := models.DecodeModel(data); model != nil {
-					modelArray = append(modelArray, model)
+				modelType, model := models.DecodeModel(data);
+				if model != nil {
+					_, ok := modelMap[*modelType]
+					if !ok {
+						modelMap[*modelType] = make([]interface{}, 0)
+					}
+					modelMap[*modelType] = append(modelMap[*modelType], model)
 				} else {
 					archived += 1;
 				}
