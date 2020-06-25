@@ -49,6 +49,7 @@ func DecodeModel(data interface{}) (*string, interface{}) {
 			model = DecodePhysicalActivity(data)
 		default:
 			fmt.Println("Currently not handling type: ", baseModel.Type)
+			return nil, nil
 		}
 	} else {
 		Inactive += 1
