@@ -16,11 +16,11 @@ type BaseModel struct {
 	Active    bool `mapstructure:"_active"`
 }
 
-func DecodeModel(data interface{}) (*string, interface{}) {
+func DecodeModel(data interface{}) (string, interface{}) {
 	var baseModel BaseModel
 	if err := mapstructure.Decode(data, &baseModel); err != nil {
 		fmt.Println("Problem decoding base model")
-		return nil, nil
+		return "", nil
 	}
 	var model interface{}
 	if baseModel.Active {
@@ -49,13 +49,11 @@ func DecodeModel(data interface{}) (*string, interface{}) {
 			model = DecodePhysicalActivity(data)
 		default:
 			fmt.Println("Currently not handling type: ", baseModel.Type)
-			return nil, nil
 		}
 	} else {
 		Inactive += 1
-		return nil, nil
 	}
-	return &baseModel.Type, model
+	return baseModel.Type, model
 }
 
 // StringToTimeHookFuncTimezoneOptional returns a DecodeHookFunc that converts

@@ -106,7 +106,8 @@ func readFromQueue(db orm.DB) {
 
 	kafkaTime := int64(0)
 	timeseriesTime := int64(0)
-	var modelMap map[string][]interface{}
+	modelMap := make(map[string][]interface{})
+
 	for i:=0; i<maxMessages; i++ {
 		archived := 0
 		insertErrors := 1
@@ -145,11 +146,11 @@ func readFromQueue(db orm.DB) {
 
 				modelType, model := models.DecodeModel(data);
 				if model != nil {
-					_, ok := modelMap[*modelType]
+					_, ok := modelMap[modelType]
 					if !ok {
-						modelMap[*modelType] = make([]interface{}, 0)
+						modelMap[modelType] = make([]interface{}, 0)
 					}
-					modelMap[*modelType] = append(modelMap[*modelType], model)
+					modelMap[modelType] = append(modelMap[modelType], model)
 				} else {
 					archived += 1;
 				}
