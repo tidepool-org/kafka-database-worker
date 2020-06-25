@@ -9,21 +9,21 @@ CREATE TABLE device_event (
     id                   Text Null,
 
     timezone             Text Null,
-    timezone_offset      INT NULL,
-    clock_drift_offset   INT NULL,
-    conversion_offset    INT NULL,
+    timezone_offset      BIGINT NULL,
+    clock_drift_offset   BIGINT NULL,
+    conversion_offset    BIGINT NULL,
 
     upload_id            Text Null,
     user_id              Text Null,
 
-    revision             INT Null,
+    revision             BIGINT Null,
 
     sub_type             Text Null,
     units                Text Null,
 
     value                DOUBLE PRECISION Null,
 
-    duration             INT Null,
+    duration             BIGINT Null,
     reason               Text Null,
 
     prime_target          Text Null,

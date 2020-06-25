@@ -9,18 +9,18 @@ CREATE TABLE basal (
     id                   Text Null,
 
     timezone             Text Null,
-    timezone_offset      INT NULL,
-    clock_drift_offset   INT NULL,
-    conversion_offset    INT NULL,
+    timezone_offset      BIGINT NULL,
+    clock_drift_offset   BIGINT NULL,
+    conversion_offset    BIGINT NULL,
 
     upload_id            Text Null,
     user_id              Text Null,
 
-    revision             INT Null,
+    revision             BIGINT Null,
 
     delivery_type      TEXT NULL,
-    duration           INT,
-    expected_duration  INT,
+    duration           BIGINT,
+    expected_duration  BIGINT,
     rate               DOUBLE PRECISION  NULL,
     percent            DOUBLE PRECISION  NULL,
     schedule_name      TEXT NULL

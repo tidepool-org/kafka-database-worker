@@ -9,14 +9,14 @@ CREATE TABLE food (
     id                   Text Null,
 
     timezone             Text Null,
-    timezone_offset      INT NULL,
-    clock_drift_offset   INT NULL,
-    conversion_offset    INT NULL,
+    timezone_offset      BIGINT NULL,
+    clock_drift_offset   BIGINT NULL,
+    conversion_offset    BIGINT NULL,
 
     upload_id            Text Null,
     user_id              Text Null,
 
-    revision             INT Null,
+    revision             BIGINT Null,
 
     nutrition            jsonb Null
 );

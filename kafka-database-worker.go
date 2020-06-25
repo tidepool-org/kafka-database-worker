@@ -105,7 +105,9 @@ func readFromQueue(db orm.DB) {
 
 
 	for i:=0; i<maxMessages; i++ {
-		m, err := r.FetchMessage(context.Background())
+		archived := 0
+		insertErrors := 1
+		m, err := r.ReadMessage(context.Background())
 		if err != nil {
 			fmt.Println("Error fetching message: ", err)
 			break
@@ -114,6 +116,7 @@ func readFromQueue(db orm.DB) {
 		if i % 1000 == 0 {
 			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 			fmt.Printf("Duration so far in seconds: %f\n", time.Now().Sub(startTime).Seconds())
+			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d", i, archived, insertErrors)
 		}
 		var rec map[string]interface{}
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
@@ -126,13 +129,15 @@ func readFromQueue(db orm.DB) {
 				if model := models.DecodeModel(data); model != nil {
 					if err = db.Insert(model); err != nil {
 						fmt.Println("Error inserting: ", err)
+						insertErrors += 1
 					}
 				} else {
+					archived += 1;
 					fmt.Printf("Model nil - not decoded %v\n", data)
 				}
 			}
 		}
-		r.CommitMessages(context.Background(), m)
+		//r.CommitMessages(context.Background(), m)
 	}
 
 	r.Close()
