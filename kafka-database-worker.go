@@ -104,10 +104,14 @@ func readFromQueue(db orm.DB) {
 
 
 
+	kafkaTime := int64(0)
+	timeseriesTime := int64(0)
 	for i:=0; i<maxMessages; i++ {
 		archived := 0
 		insertErrors := 1
+		kafkaStartTime := time.Now()
 		m, err := r.ReadMessage(context.Background())
+		kafkaTime += time.Now().Sub(kafkaStartTime).Nanoseconds()
 		if err != nil {
 			fmt.Println("Error fetching message: ", err)
 			break
@@ -115,7 +119,7 @@ func readFromQueue(db orm.DB) {
 
 		if i % 1000 == 0 {
 			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
-			fmt.Printf("Duration so far in seconds: %f\n", time.Now().Sub(startTime).Seconds())
+			fmt.Printf("Duration seconds: %f,  kafakTime (ms): %f,  TimeseriesTime (ms): %f\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
 			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d", i, archived, insertErrors)
 		}
 		var rec map[string]interface{}
@@ -127,13 +131,14 @@ func readFromQueue(db orm.DB) {
 			if data_ok && source_ok && source == "database"{
 
 				if model := models.DecodeModel(data); model != nil {
+					timeseriesStartTime := time.Now()
 					if err = db.Insert(model); err != nil {
 						fmt.Println("Error inserting: ", err)
 						insertErrors += 1
 					}
+					timeseriesTime += time.Now().Sub(timeseriesStartTime).Nanoseconds()
 				} else {
 					archived += 1;
-					fmt.Printf("Model nil - not decoded %v\n", data)
 				}
 			}
 		}
