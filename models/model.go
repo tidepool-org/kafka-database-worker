@@ -26,35 +26,44 @@ func DecodeModel(data interface{}) interface{} {
 		Active += 1
 		switch baseModel.Type {
 		case "upload":
-			upload := DecodeUpload(data)
-			return upload
+			//upload := DecodeUpload(data)
+			return nil
+			//return upload
 		case "basal":
-			basal := DecodeBasal(data)
-			return basal
+			//basal := DecodeBasal(data)
+			return nil
+			//return basal
 		case "bolus":
-			bolus := DecodeBolus(data)
-			return bolus
+			//bolus := DecodeBolus(data)
+			return nil
+			//return bolus
 		case "cbg":
 			cbg := DecodeCbg(data)
 			return cbg
 		case "smbg":
-			smbg := DecodeSmbg(data)
-			return smbg
+			//smbg := DecodeSmbg(data)
+			return nil
+			//return smbg
 		case "wizard":
-			wizard := DecodeWizard(data)
-			return wizard
+			//wizard := DecodeWizard(data)
+			return nil
+			//return wizard
 		case "food":
-			food := DecodeFood(data)
-			return food
+			//food := DecodeFood(data)
+			return nil
+			//return food
 		case "deviceEvent":
-			food := DecodeDeviceEvent(data)
-			return food
+			//deviceEvent := DecodeDeviceEvent(data)
+			return nil
+			//return deviceEvent
 		case "pumpSettings":
-			food := DecodePumpSettings(data)
-			return food
+			//pumpSettings := DecodePumpSettings(data)
+			return nil
+			//return pumpSettings
 		case "physicalActivity":
-			physicalActivity := DecodePhysicalActivity(data)
-			return physicalActivity
+			//physicalActivity := DecodePhysicalActivity(data)
+			return nil
+			//return physicalActivity
 		default:
 			fmt.Println("Currently not handling type: ", baseModel.Type)
 		}
