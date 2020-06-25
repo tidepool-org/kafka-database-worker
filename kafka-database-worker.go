@@ -118,7 +118,7 @@ func readFromQueue(db orm.DB) {
 			break
 		}
 
-		if (i-1) % 1000 == 0 {
+		if (i-1) % 100 == 0 {
 			timeseriesStartTime := time.Now()
 			if _, err := db.Model(modelArray...).Insert(); err != nil {
 				fmt.Println("Error inserting: ", err)
