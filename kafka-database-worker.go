@@ -126,7 +126,7 @@ func readFromQueue(db orm.DB) {
 			}
 			timeseriesTime += time.Now().Sub(timeseriesStartTime).Nanoseconds()
 			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
-			fmt.Printf("Duration seconds: %f,  kafakTime (ms): %f,  TimeseriesTime (ms): %f\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
+			fmt.Printf("Duration seconds: %f,  kafakTime (ms): %d,  TimeseriesTime (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
 			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d", i, archived, insertErrors)
 		}
 		var rec map[string]interface{}
