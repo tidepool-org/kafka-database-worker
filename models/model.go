@@ -53,6 +53,7 @@ func DecodeModel(data interface{}) (*string, interface{}) {
 		}
 	} else {
 		Inactive += 1
+		return nil, nil
 	}
 	return &baseModel.Type, model
 }
