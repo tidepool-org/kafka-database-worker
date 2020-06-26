@@ -16,44 +16,52 @@ type BaseModel struct {
 	Active    bool `mapstructure:"_active"`
 }
 
-func DecodeModel(data interface{}) (string, interface{}) {
+func DecodeModel(data interface{}) Model {
 	var baseModel BaseModel
 	if err := mapstructure.Decode(data, &baseModel); err != nil {
 		fmt.Println("Problem decoding base model")
-		return "", nil
+		return nil
 	}
-	var model interface{}
 	if baseModel.Active {
 		Active += 1
 		switch baseModel.Type {
 		case "upload":
-			model = DecodeUpload(data)
-			//return upload
+			upload := DecodeUpload(data)
+			return upload
 		case "basal":
-			model = DecodeBasal(data)
+			basal := DecodeBasal(data)
+			return basal
 		case "bolus":
-			model = DecodeBolus(data)
+			bolus := DecodeBolus(data)
+			return bolus
 		case "cbg":
-			model = DecodeCbg(data)
+			cbg := DecodeCbg(data)
+			return cbg
 		case "smbg":
-			model = DecodeSmbg(data)
+			smbg := DecodeSmbg(data)
+			return smbg
 		case "wizard":
-			model = DecodeWizard(data)
+			wizard := DecodeWizard(data)
+			return wizard
 		case "food":
-			model = DecodeFood(data)
+			food := DecodeFood(data)
+			return food
 		case "deviceEvent":
-			model = DecodeDeviceEvent(data)
+			deviceEvent := DecodeDeviceEvent(data)
+			return deviceEvent
 		case "pumpSettings":
-			model = DecodePumpSettings(data)
+			pumpSettings := DecodePumpSettings(data)
+			return pumpSettings
 		case "physicalActivity":
-			model = DecodePhysicalActivity(data)
+			physicalActivity := DecodePhysicalActivity(data)
+			return physicalActivity
 		default:
 			fmt.Println("Currently not handling type: ", baseModel.Type)
 		}
 	} else {
 		Inactive += 1
 	}
-	return baseModel.Type, model
+	return nil
 }
 
 // StringToTimeHookFuncTimezoneOptional returns a DecodeHookFunc that converts

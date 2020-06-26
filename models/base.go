@@ -4,8 +4,14 @@ import (
 	"time"
 )
 
+type Model interface {
+	GetType() string
+}
+
 type Base struct {
 	Time              time.Time  `mapstructure:"time" pg:"time type:timestamptz"`
+
+	Type              string     `1mapstructure:"type" pg:"-"`
 
 	CreatedTime       time.Time  `mapstructure:"createdTime" pg:"created_time type:timestamptz"`
 	ModifiedTime      time.Time  `mapstructure:"modifiedTime" pg:"modified_time type:timestamptz"`
@@ -23,6 +29,10 @@ type Base struct {
 	UserId            string   `mapstructure:"userId,omitempty" pg:"user_id"`
 
 	Revision          int64   `mapstructure:"revision,omitempty" pg:"revision"`
+}
+
+func (b *Base) GetType() string {
+	return b.Type
 }
 
 

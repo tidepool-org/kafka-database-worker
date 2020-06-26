@@ -91,6 +91,7 @@ func readFromQueue(db orm.DB) {
 	hostStr := fmt.Sprintf("%s:%d", host,port)
 	maxMessages := 500000
 	startTime := time.Now()
+	writeCount := 50000
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	r := kafka.NewReader(kafka.ReaderConfig{
@@ -119,7 +120,7 @@ func readFromQueue(db orm.DB) {
 			break
 		}
 
-		if (i-1) % 10000 == 0 {
+		if (i+1) % writeCount == 0 {
 			timeseriesStartTime := time.Now()
 
 			for _, val := range modelMap {
@@ -134,7 +135,7 @@ func readFromQueue(db orm.DB) {
 			modelMap = make(map[string][]interface{})
 			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 			fmt.Printf("Duration seconds: %f,  kafakTime (ms): %d,  TimeseriesTime (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
-			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d", i, archived, insertErrors)
+			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d\n", i, archived, insertErrors)
 		}
 		var rec map[string]interface{}
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
@@ -144,13 +145,13 @@ func readFromQueue(db orm.DB) {
 			data, data_ok := rec["data"]
 			if data_ok && source_ok && source == "database"{
 
-				modelType, model := models.DecodeModel(data);
+				model := models.DecodeModel(data);
 				if model != nil {
-					_, ok := modelMap[modelType]
+					_, ok := modelMap[model.GetType()]
 					if !ok {
-						modelMap[modelType] = make([]interface{}, 0)
+						modelMap[model.GetType()] = make([]interface{}, 0)
 					}
-					modelMap[modelType] = append(modelMap[modelType], model)
+					modelMap[model.GetType()] = append(modelMap[model.GetType()], model)
 				} else {
 					archived += 1;
 				}
