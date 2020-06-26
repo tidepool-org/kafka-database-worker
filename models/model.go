@@ -55,6 +55,12 @@ func DecodeModel(data interface{}) Model {
 		case "physicalActivity":
 			physicalActivity := DecodePhysicalActivity(data)
 			return physicalActivity
+		case "cgmSettings":
+			physicalActivity := DecodeCgmSettings(data)
+			return physicalActivity
+		case "deviceMeta":
+			physicalActivity := DecodeDeviceMeta(data)
+			return physicalActivity
 		default:
 			fmt.Println("Currently not handling type: ", baseModel.Type)
 		}
