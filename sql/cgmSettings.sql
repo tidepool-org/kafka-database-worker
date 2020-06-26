@@ -1,4 +1,4 @@
-CREATE TABLE wizard (
+CREATE TABLE cgm_settings (
     time                 TIMESTAMPTZ NOT NULL,
 
     created_time         TIMESTAMPTZ NULL,
@@ -18,14 +18,14 @@ CREATE TABLE wizard (
 
     revision             BIGINT Null,
 
-    transmitterId        Text NULL,
+    transmitter_id       Text NULL,
     units                Text NULL,
 
     low_alerts           jsonb NULL,
     high_alerts          jsonb NULL,
     rate_of_change_alerts jsonb NULL,
-    out_of_range_alerts  jsonb NULL,
+    out_of_range_alerts  jsonb NULL
 );
 
-SELECT create_hypertable('wizard', 'time');
+SELECT create_hypertable('cgm_settings', 'time');
 

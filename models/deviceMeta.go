@@ -10,9 +10,6 @@ import (
 type DeviceMeta struct {
 	Base                                             `mapstructure:",squash"`
 
-	Bolus             string                         `mapstructure:"bolus" pg:"bolus"`
-	Units             string                         `mapstructure:"units" pg:"units"`
-
 	Status             string                        `mapstructure:"status" pg:"status"`
 	SubType            string                        `mapstructure:"subType" pg:"sub_type"`
 	Duration           int64                         `mapstructure:"duration" pg:"duration"`

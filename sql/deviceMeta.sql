@@ -1,4 +1,4 @@
-CREATE TABLE wizard (
+CREATE TABLE device_meta (
     time                 TIMESTAMPTZ NOT NULL,
 
     created_time         TIMESTAMPTZ NULL,
@@ -25,5 +25,5 @@ CREATE TABLE wizard (
     duration             BIGINT Null
 );
 
-SELECT create_hypertable('wizard', 'time');
+SELECT create_hypertable('device_meta', 'time');
 
