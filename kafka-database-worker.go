@@ -52,10 +52,10 @@ func (d dbLogger) AfterQuery(c context.Context, q *pg.QueryEvent) error {
 
 func writeToDatabase() {
 	// Connect to db
-	user := "postgres"
+	user, _ := os.LookupEnv("TIMESCALEDB_USER")
 	password, _ := os.LookupEnv("TIMESCALEDB_PASSWORD")
-	host := "timescaledb-single.timescaledb.svc.cluster.local"
-	db_name := "postgres"
+	host, _ := os.LookupEnv("TIMESCALEDB_HOST")
+	db_name, _ := os.LookupEnv("TIMESCALEDB_DBNAME")
 
 
 	url := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=allow", user, password, host, db_name)
@@ -84,11 +84,9 @@ func writeToDatabase() {
 }
 
 func readFromQueue(db orm.DB) {
-	topic := "database"
+	topic, _ := os.LookupEnv("KAFKA_TOPIC")
 	partition := 0
-	host := "kafka-kafka-bootstrap.kafka.svc.cluster.local"
-	port := 9092
-	hostStr := fmt.Sprintf("%s:%d", host,port)
+	hostStr, _ := os.LookupEnv("KAFKA_BROKERS")
 	maxMessages := 500000
 	startTime := time.Now()
 	writeCount := 50000
@@ -108,10 +106,10 @@ func readFromQueue(db orm.DB) {
 	kafkaTime := int64(0)
 	timeseriesTime := int64(0)
 	modelMap := make(map[string][]interface{})
+	archived := 0
+	insertErrors := 1
 
 	for i:=0; i<maxMessages; i++ {
-		archived := 0
-		insertErrors := 1
 		kafkaStartTime := time.Now()
 		m, err := r.ReadMessage(context.Background())
 		kafkaTime += time.Now().Sub(kafkaStartTime).Nanoseconds()
@@ -141,9 +139,10 @@ func readFromQueue(db orm.DB) {
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
 			fmt.Println("Error Unmarshalling", err)
 		} else {
-			source, source_ok := rec["source"]
-			data, data_ok := rec["data"]
-			if data_ok && source_ok && source == "database"{
+			//source, source_ok := rec["source"]
+			data, data_ok := rec["after"]
+			//if data_ok && source_ok && source == "database"{
+			if data_ok {
 
 				model := models.DecodeModel(data);
 				if model != nil {
