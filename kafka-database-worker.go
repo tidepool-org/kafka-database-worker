@@ -87,7 +87,7 @@ func readFromQueue(db orm.DB) {
 	topic, _ := os.LookupEnv("KAFKA_TOPIC")
 	partition := 0
 	hostStr, _ := os.LookupEnv("KAFKA_BROKERS")
-	maxMessages := 500000
+	maxMessages := 40000000
 	startTime := time.Now()
 	writeCount := 50000
 
@@ -140,9 +140,9 @@ func readFromQueue(db orm.DB) {
 			fmt.Println("Error Unmarshalling", err)
 		} else {
 			//source, source_ok := rec["source"]
-			after_field, after_field_ok := rec["after"]
+			after_field, data_rec_ok := rec["after"]
 			//if data_ok && source_ok && source == "database"{
-			if after_field_ok {
+			if data_rec_ok {
 			    var data map[string]interface{}
 			    data_string := fmt.Sprintf("%v", after_field)
 				if err := json.Unmarshal([]byte(data_string), &data); err != nil {
