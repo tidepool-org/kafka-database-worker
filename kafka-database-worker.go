@@ -140,19 +140,24 @@ func readFromQueue(db orm.DB) {
 			fmt.Println("Error Unmarshalling", err)
 		} else {
 			//source, source_ok := rec["source"]
-			data, data_ok := rec["after"]
+			after_field, after_field_ok := rec["after"]
 			//if data_ok && source_ok && source == "database"{
-			if data_ok {
-
-				model := models.DecodeModel(data);
-				if model != nil {
-					_, ok := modelMap[model.GetType()]
-					if !ok {
-						modelMap[model.GetType()] = make([]interface{}, 0)
-					}
-					modelMap[model.GetType()] = append(modelMap[model.GetType()], model)
+			if after_field_ok {
+			    var data map[string]interface{}
+			    data_string := fmt.Sprintf("%v", after_field)
+				if err := json.Unmarshal([]byte(data_string), &data); err != nil {
+					fmt.Println("Error Unmarshalling after field", err)
 				} else {
-					archived += 1;
+					model := models.DecodeModel(data);
+					if model != nil {
+						_, ok := modelMap[model.GetType()]
+						if !ok {
+							modelMap[model.GetType()] = make([]interface{}, 0)
+						}
+						modelMap[model.GetType()] = append(modelMap[model.GetType()], model)
+					} else {
+						archived += 1;
+					}
 				}
 			}
 		}
