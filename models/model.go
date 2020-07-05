@@ -19,7 +19,8 @@ type BaseModel struct {
 func DecodeModel(data interface{}) Model {
 	var baseModel BaseModel
 	if err := mapstructure.Decode(data, &baseModel); err != nil {
-		fmt.Println("Problem decoding base model")
+		fmt.Println("Problem decoding base model", err)
+		panic(err)
 		return nil
 	}
 	if baseModel.Active {
