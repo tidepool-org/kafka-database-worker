@@ -112,7 +112,8 @@ func readFromQueue(db orm.DB) {
 	for i:=0; i<maxMessages; i++ {
 		kafkaStartTime := time.Now()
 		m, err := r.ReadMessage(context.Background())
-		kafkaTime += time.Now().Sub(kafkaStartTime).Nanoseconds()
+		kafkaDeltaTime := time.Now().Sub(kafkaStartTime).Nanoseconds()
+		kafkaTime += kafkaDeltaTime
 		if err != nil {
 			fmt.Println("Error fetching message: ", err)
 			break
@@ -129,11 +130,13 @@ func readFromQueue(db orm.DB) {
 					}
 				}
 			}
-			timeseriesTime += time.Now().Sub(timeseriesStartTime).Nanoseconds()
+			timeseriesDeltaTime := time.Now().Sub(timeseriesStartTime).Nanoseconds()
+			timeseriesTime += timeseriesDeltaTime
 			modelMap = make(map[string][]interface{})
 			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
-			fmt.Printf("Duration seconds: %f,  kafakTime (ms): %d,  TimeseriesTime (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
-			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d\n", i, archived, insertErrors)
+			fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
+			fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
+			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d\n", i+1, archived, insertErrors)
 		}
 		var rec map[string]interface{}
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
