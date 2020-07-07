@@ -20,7 +20,7 @@ CREATE TABLE cbg (
 
     value               DOUBLE PRECISION  NULL,
 
-    sub_type            Text Null
+    units               Text Null
 );
 
 SELECT create_hypertable('cbg', 'time');

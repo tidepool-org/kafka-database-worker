@@ -6,6 +6,7 @@ import (
 
 type Model interface {
 	GetType() string
+	GetUserId() string
 }
 
 type Base struct {
@@ -26,13 +27,17 @@ type Base struct {
 	ConversionOffset  int64    `mapstructure:"conversionOffset,omitempty" pg:"conversion_offset"`
 
 	UploadId          string   `mapstructure:"uploadId,omitempty" pg:"upload_id"`
-	UserId            string   `mapstructure:"userId,omitempty" pg:"user_id"`
+	UserId            string   `mapstructure:"_userId,omitempty" pg:"user_id"`
 
 	Revision          int64   `mapstructure:"revision,omitempty" pg:"revision"`
 }
 
 func (b *Base) GetType() string {
 	return b.Type
+}
+
+func (b *Base) GetUserId() string {
+	return b.UserId
 }
 
 

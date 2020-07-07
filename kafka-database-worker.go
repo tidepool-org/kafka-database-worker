@@ -90,6 +90,8 @@ func readFromQueue(db orm.DB) {
 	maxMessages := 40000000
 	startTime := time.Now()
 	writeCount := 50000
+	userFilters := map[string]bool {
+	}
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	r := kafka.NewReader(kafka.ReaderConfig{
@@ -107,6 +109,7 @@ func readFromQueue(db orm.DB) {
 	timeseriesTime := int64(0)
 	modelMap := make(map[string][]interface{})
 	archived := 0
+	filtered := 0
 	insertErrors := 1
 
 	for i:=0; i<maxMessages; i++ {
@@ -136,7 +139,7 @@ func readFromQueue(db orm.DB) {
 			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 			fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
 			fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
-			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d\n", i+1, archived, insertErrors)
+			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d, filtered: %d\n", i+1, archived, insertErrors, filtered)
 		}
 		var rec map[string]interface{}
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
@@ -151,13 +154,17 @@ func readFromQueue(db orm.DB) {
 				if err := json.Unmarshal([]byte(data_string), &data); err != nil {
 					fmt.Println("Error Unmarshalling after field", err)
 				} else {
-					model := models.DecodeModel(data);
+					model := models.DecodeModel(data)
 					if model != nil {
-						_, ok := modelMap[model.GetType()]
-						if !ok {
-							modelMap[model.GetType()] = make([]interface{}, 0)
+						if userFilters[model.GetUserId()] {
+							_, ok := modelMap[model.GetType()]
+							if !ok {
+								modelMap[model.GetType()] = make([]interface{}, 0)
+							}
+							modelMap[model.GetType()] = append(modelMap[model.GetType()], model)
+						} else {
+							filtered += 1
 						}
-						modelMap[model.GetType()] = append(modelMap[model.GetType()], model)
 					} else {
 						archived += 1;
 					}
