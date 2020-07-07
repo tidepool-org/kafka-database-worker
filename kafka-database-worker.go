@@ -91,6 +91,9 @@ func readFromQueue(db orm.DB) {
 	startTime := time.Now()
 	writeCount := 50000
 	userFilters := map[string]bool {
+		"c6505473f9": true,
+		"9044a6953b": true,
+		"298b233138": true,
 	}
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
