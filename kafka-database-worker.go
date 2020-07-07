@@ -163,7 +163,7 @@ func readFromQueue(db orm.DB) {
 					if err != nil {
 						fmt.Println("Overall decoding error:", err)
 					} else {
-						if userFilters[model.GetUserId()] {
+						if model != nil && userFilters[model.GetUserId()] {
 							_, ok := modelMap[model.GetType()]
 							if !ok {
 								modelMap[model.GetType()] = make([]interface{}, 0)

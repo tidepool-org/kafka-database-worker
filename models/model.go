@@ -67,7 +67,7 @@ func DecodeModel(data interface{}) (Model, error) {
 	} else {
 		Inactive += 1
 	}
-	return nil, fmt.Errorf("Inactive")
+	return nil, nil
 }
 
 // StringToTimeHookFuncTimezoneOptional returns a DecodeHookFunc that converts
