@@ -87,7 +87,8 @@ func readFromQueue(db orm.DB) {
 	topic, _ := os.LookupEnv("KAFKA_TOPIC")
 	partition := 0
 	hostStr, _ := os.LookupEnv("KAFKA_BROKERS")
-	maxMessages := 40000000
+	//maxMessages := 40000000
+	maxMessages :=  1
 	startTime := time.Now()
 	writeCount := 50000
 	userFilters := map[string]bool {
