@@ -15,7 +15,7 @@ type Food struct {
 
 }
 
-func DecodeFood(data interface{}) *Food {
+func DecodeFood(data interface{}) (*Food, error) {
 	var food = Food{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -23,21 +23,21 @@ func DecodeFood(data interface{}) *Food {
 		Result: &food,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding: ", err)
-			return nil
+			fmt.Println("Error decoding food: ", err)
+			return nil, err
 		}
 
 		nutritionByteArray, err := json.Marshal(food.NutritionMap)
 		food.NutritionJson = string(nutritionByteArray)
 		if err != nil {
 			fmt.Println("Error encoding nutrition json: ", err)
-			return nil
+			return nil, err
 		}
 
-		return &food
+		return &food, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
+		return nil, nil
 	}
-	return nil
 }

@@ -16,58 +16,58 @@ type BaseModel struct {
 	Active    bool `mapstructure:"_active"`
 }
 
-func DecodeModel(data interface{}) Model {
+func DecodeModel(data interface{}) (Model, error) {
 	var baseModel BaseModel
 	if err := mapstructure.Decode(data, &baseModel); err != nil {
 		fmt.Println("Problem decoding base model", err)
-		return nil
+		return nil, err
 	}
 	if baseModel.Active {
 		Active += 1
 		switch baseModel.Type {
 		case "upload":
-			upload := DecodeUpload(data)
-			return upload
+			upload, err := DecodeUpload(data)
+			return upload, err
 		case "basal":
-			basal := DecodeBasal(data)
-			return basal
+			basal, err := DecodeBasal(data)
+			return basal, err
 		case "bolus":
-			bolus := DecodeBolus(data)
-			return bolus
+			bolus, err := DecodeBolus(data)
+			return bolus, err
 		case "cbg":
-			cbg := DecodeCbg(data)
-			return cbg
+			cbg, err := DecodeCbg(data)
+			return cbg, err
 		case "smbg":
-			smbg := DecodeSmbg(data)
-			return smbg
+			smbg, err := DecodeSmbg(data)
+			return smbg, err
 		case "wizard":
-			wizard := DecodeWizard(data)
-			return wizard
+			wizard, err := DecodeWizard(data)
+			return wizard, err
 		case "food":
-			food := DecodeFood(data)
-			return food
+			food, err := DecodeFood(data)
+			return food, err
 		case "deviceEvent":
-			deviceEvent := DecodeDeviceEvent(data)
-			return deviceEvent
+			deviceEvent, err := DecodeDeviceEvent(data)
+			return deviceEvent, err
 		case "pumpSettings":
-			pumpSettings := DecodePumpSettings(data)
-			return pumpSettings
+			pumpSettings, err := DecodePumpSettings(data)
+			return pumpSettings, err
 		case "physicalActivity":
-			physicalActivity := DecodePhysicalActivity(data)
-			return physicalActivity
+			physicalActivity, err := DecodePhysicalActivity(data)
+			return physicalActivity, err
 		case "cgmSettings":
-			cgmSettings := DecodeCgmSettings(data)
-			return cgmSettings
+			cgmSettings, err := DecodeCgmSettings(data)
+			return cgmSettings, err
 		case "deviceMeta":
-			deviceMeta := DecodeDeviceMeta(data)
-			return deviceMeta
+			deviceMeta, err := DecodeDeviceMeta(data)
+			return deviceMeta, err
 		default:
 			fmt.Println("Currently not handling type: ", baseModel.Type)
 		}
 	} else {
 		Inactive += 1
 	}
-	return nil
+	return nil, nil
 }
 
 // StringToTimeHookFuncTimezoneOptional returns a DecodeHookFunc that converts

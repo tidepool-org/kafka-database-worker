@@ -28,7 +28,7 @@ type PumpSettings struct {
 	unitsJson               string                      `pg:"units"`
 }
 
-func DecodePumpSettings(data interface{}) *PumpSettings {
+func DecodePumpSettings(data interface{}) (*PumpSettings, error) {
 	var pumpSettings = PumpSettings{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -36,49 +36,49 @@ func DecodePumpSettings(data interface{}) *PumpSettings {
 		Result: &pumpSettings,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding: ", err)
-			return nil
+			fmt.Println("Error decoding pump settings: ", err)
+			return nil, err
 		}
 
 		basalSchedulesByteArray, err := json.Marshal(pumpSettings.BasalSchedulesMap)
 		pumpSettings.BasalSchedulesJson = string(basalSchedulesByteArray)
 		if err != nil {
 			fmt.Println("Error encoding Basal Schedules json: ", err)
-			return nil
+			return nil, err
 		}
 
 		bgTargetMapByteArray, err := json.Marshal(pumpSettings.BgTargetMap)
 		pumpSettings.BgTargetJson = string(bgTargetMapByteArray)
 		if err != nil {
 			fmt.Println("Error encoding Bg Target json: ", err)
-			return nil
+			return nil, err
 		}
 
 		carbRatioMapByteArray, err := json.Marshal(pumpSettings.CarbRatioMap)
 		pumpSettings.CarbRatioJson = string(carbRatioMapByteArray)
 		if err != nil {
 			fmt.Println("Error encoding carb ration json: ", err)
-			return nil
+			return nil, err
 		}
 
 		insulinSensitivityByteArray, err := json.Marshal(pumpSettings.InsulinSensitivityMap)
 		pumpSettings.InsulinSensitivityJson = string(insulinSensitivityByteArray)
 		if err != nil {
 			fmt.Println("Error encoding insulin sensitivity json: ", err)
-			return nil
+			return nil, err
 		}
 
 		unitsMapByteArray, err := json.Marshal(pumpSettings.unitsMap)
 		pumpSettings.unitsJson = string(unitsMapByteArray)
 		if err != nil {
 			fmt.Println("Error encoding units json: ", err)
-			return nil
+			return nil, err
 		}
 
-		return &pumpSettings
+		return &pumpSettings, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
+		return nil, err
 	}
-	return nil
 }

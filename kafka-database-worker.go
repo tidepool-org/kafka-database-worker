@@ -87,8 +87,9 @@ func readFromQueue(db orm.DB) {
 	topic, _ := os.LookupEnv("KAFKA_TOPIC")
 	partition := 0
 	hostStr, _ := os.LookupEnv("KAFKA_BROKERS")
-	//maxMessages := 40000000
-	maxMessages :=  1
+	groupId := "Tidepool-Mongo-Consumer"
+	maxMessages := 40000000
+	//maxMessages :=  0
 	startTime := time.Now()
 	writeCount := 50000
 	userFilters := map[string]bool {
@@ -101,6 +102,7 @@ func readFromQueue(db orm.DB) {
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   []string{hostStr},
 		Topic:     topic,
+		GroupID:   groupId,
 		Partition: partition,
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
@@ -112,7 +114,6 @@ func readFromQueue(db orm.DB) {
 	kafkaTime := int64(0)
 	timeseriesTime := int64(0)
 	modelMap := make(map[string][]interface{})
-	archived := 0
 	filtered := 0
 	insertErrors := 1
 
@@ -143,7 +144,7 @@ func readFromQueue(db orm.DB) {
 			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 			fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
 			fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
-			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d, filtered: %d\n", i+1, archived, insertErrors, filtered)
+			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d, filtered: %d\n", i+1, models.Inactive, insertErrors, filtered)
 		}
 		var rec map[string]interface{}
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
@@ -158,8 +159,10 @@ func readFromQueue(db orm.DB) {
 				if err := json.Unmarshal([]byte(data_string), &data); err != nil {
 					fmt.Println("Error Unmarshalling after field", err)
 				} else {
-					model := models.DecodeModel(data)
-					if model != nil {
+					model, err := models.DecodeModel(data)
+					if err != nil {
+						fmt.Println("Overall decoding error:", err)
+					} else {
 						if userFilters[model.GetUserId()] {
 							_, ok := modelMap[model.GetType()]
 							if !ok {
@@ -169,8 +172,6 @@ func readFromQueue(db orm.DB) {
 						} else {
 							filtered += 1
 						}
-					} else {
-						archived += 1;
 					}
 				}
 			}

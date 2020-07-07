@@ -14,7 +14,7 @@ type Cbg struct {
 	Units          string    `mapstructure:"units" pg:"units"`
 }
 
-func DecodeCbg(data interface{}) *Cbg {
+func DecodeCbg(data interface{}) (*Cbg, error) {
 	var cbg = Cbg{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -22,13 +22,14 @@ func DecodeCbg(data interface{}) *Cbg {
 		Result: &cbg,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding: ", err)
-		} else {
-			return &cbg
+			fmt.Println("Error decoding cbg: ", err)
+			return nil, err
 		}
+
+		return &cbg, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
+		return nil, err
 	}
-	return nil
 }

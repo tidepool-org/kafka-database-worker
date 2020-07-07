@@ -14,7 +14,7 @@ type Bolus struct {
 	SubType        string    `mapstructure:"subType" pg:"sub_type"`
 }
 
-func DecodeBolus(data interface{}) *Bolus {
+func DecodeBolus(data interface{}) (*Bolus, error) {
 	var bolus = Bolus{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -22,13 +22,14 @@ func DecodeBolus(data interface{}) *Bolus {
 		Result: &bolus,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding: ", err)
-		} else {
-			return &bolus
+			fmt.Println("Error decoding bolus: ", err)
+			return nil, err
 		}
+
+		return &bolus, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
+		return nil, nil
 	}
-	return nil
 }

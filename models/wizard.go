@@ -18,7 +18,7 @@ type Wizard struct {
 
 }
 
-func DecodeWizard(data interface{}) *Wizard {
+func DecodeWizard(data interface{}) (*Wizard, error) {
 	var wizard = Wizard{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -26,21 +26,21 @@ func DecodeWizard(data interface{}) *Wizard {
 		Result: &wizard,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding: ", err)
-			return nil
+			fmt.Println("Error decoding wizard: ", err)
+			return nil, err
 		}
 
 		recommendedByteArray, err := json.Marshal(wizard.RecommendedMap)
 		wizard.RecommendedJson = string(recommendedByteArray)
 		if err != nil {
 			fmt.Println("Error encoding recommended json: ", err)
-			return nil
+			return nil, err
 		}
 
-		return &wizard
+		return &wizard, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
+		return nil, nil
 	}
-	return nil
 }

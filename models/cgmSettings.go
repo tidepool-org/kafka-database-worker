@@ -26,7 +26,7 @@ type CgmSettings struct {
 	OutOfRangeAlertsJson   string                    `pg:"out_of_range_alerts"`
 }
 
-func DecodeCgmSettings(data interface{}) *CgmSettings {
+func DecodeCgmSettings(data interface{}) (*CgmSettings, error) {
 	var cgmSettings = CgmSettings{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -34,8 +34,8 @@ func DecodeCgmSettings(data interface{}) *CgmSettings {
 		Result: &cgmSettings,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding: ", err)
-			return nil
+			fmt.Println("Error decoding cgm settings: ", err)
+			return nil, err
 		}
 
 		lowAlertsByteArray, err := json.Marshal(cgmSettings.LowAlertsMap)
@@ -52,13 +52,13 @@ func DecodeCgmSettings(data interface{}) *CgmSettings {
 
 		if err != nil {
 			fmt.Println("Error encoding reason json: ", err)
-			return nil
+			return nil, err
 		}
 
-		return &cgmSettings
+		return &cgmSettings, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
+		return nil, nil
 	}
-	return nil
 }

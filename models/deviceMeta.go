@@ -19,7 +19,7 @@ type DeviceMeta struct {
 
 }
 
-func DecodeDeviceMeta(data interface{}) *DeviceMeta {
+func DecodeDeviceMeta(data interface{}) (*DeviceMeta, error) {
 	var deviceMeta = DeviceMeta{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -27,21 +27,21 @@ func DecodeDeviceMeta(data interface{}) *DeviceMeta {
 		Result: &deviceMeta,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding: ", err)
-			return nil
+			fmt.Println("Error decoding device meta: ", err)
+			return nil, err
 		}
 
 		reasonByteArray, err := json.Marshal(deviceMeta.ReasonMap)
 		deviceMeta.ReasonJson = string(reasonByteArray)
 		if err != nil {
 			fmt.Println("Error encoding reason json: ", err)
-			return nil
+			return nil, err
 		}
 
-		return &deviceMeta
+		return &deviceMeta, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
+		return nil, nil
 	}
-	return nil
 }

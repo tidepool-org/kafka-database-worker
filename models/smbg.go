@@ -14,7 +14,7 @@ type Smbg struct {
 	value          float64    `mapstructure:"value" pg:"value"`
 }
 
-func DecodeSmbg(data interface{}) *Smbg {
+func DecodeSmbg(data interface{}) (*Smbg, error) {
 	var smbg = Smbg{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -22,13 +22,14 @@ func DecodeSmbg(data interface{}) *Smbg {
 		Result: &smbg,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding: ", err)
-		} else {
-			return &smbg
+			fmt.Println("Error decoding smbg: ", err)
+			return nil, err
 		}
+
+		return &smbg, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
+		return nil, nil
 	}
-	return nil
 }

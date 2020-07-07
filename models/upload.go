@@ -17,7 +17,7 @@ type Upload struct {
 	Version        string    `mapstructure:"version" pg:"version"`
 }
 
-func DecodeUpload(data interface{}) *Upload {
+func DecodeUpload(data interface{}) (*Upload, error) {
 	var upload = Upload{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -25,13 +25,14 @@ func DecodeUpload(data interface{}) *Upload {
 		Result: &upload,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding: ", err)
-		} else {
-			return &upload
+			fmt.Println("Error decoding upload: ", err)
+			return nil, err
 		}
+
+		return &upload, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
+		return nil, nil
 	}
-	return nil
 }

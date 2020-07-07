@@ -18,7 +18,7 @@ type Basal struct {
 	Active            bool    `mapstructure:"_active" pg:"-"`
 }
 
-func DecodeBasal(data interface{}) *Basal  {
+func DecodeBasal(data interface{}) (*Basal, error)  {
 	var basal = Basal{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -26,14 +26,15 @@ func DecodeBasal(data interface{}) *Basal  {
 		Result: &basal,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding: ", err)
-		} else {
-			return &basal
+			fmt.Println("Error decoding basal: ", err)
+			return nil, err
 		}
+
+		return &basal, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
+		return nil, err
 	}
-	return nil
 }
 

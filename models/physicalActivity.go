@@ -22,7 +22,7 @@ type PhysicalActivity struct {
 	Name           string                         `mapstructure:"name" pg:"name"`
 }
 
-func DecodePhysicalActivity(data interface{}) *PhysicalActivity {
+func DecodePhysicalActivity(data interface{}) (*PhysicalActivity, error) {
 	var physicalActivity = PhysicalActivity{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -30,35 +30,35 @@ func DecodePhysicalActivity(data interface{}) *PhysicalActivity {
 		Result: &physicalActivity,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding: ", err)
-			return nil
+			fmt.Println("Error decoding physical activity: ", err)
+			return nil, err
 		}
 
 		durationByteArray, err := json.Marshal(physicalActivity.DurationMap)
 		physicalActivity.DurationJson = string(durationByteArray)
 		if err != nil {
 			fmt.Println("Error encoding duration json: ", err)
-			return nil
+			return nil, err
 		}
 
 		distanceByteArray, err := json.Marshal(physicalActivity.DistanceMap)
 		physicalActivity.DistanceJson = string(distanceByteArray)
 		if err != nil {
 			fmt.Println("Error encoding Distance json: ", err)
-			return nil
+			return nil, err
 		}
 
 		energyByteArray, err := json.Marshal(physicalActivity.EnergyMap)
 		physicalActivity.EnergyJson = string(energyByteArray)
 		if err != nil {
 			fmt.Println("Error encoding Energy json: ", err)
-			return nil
+			return nil, err
 		}
 
-		return &physicalActivity
+		return &physicalActivity, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
+		return nil, nil
 	}
-	return nil
 }
