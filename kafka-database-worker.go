@@ -92,11 +92,11 @@ func readFromQueue(db orm.DB) {
 	//maxMessages :=  0
 	startTime := time.Now()
 	writeCount := 50000
-	userFilters := map[string]bool {
-		"c6505473f9": true,
-		"9044a6953b": true,
-		"298b233138": true,
-	}
+	//userFilters := map[string]bool {
+	//	"c6505473f9": true,
+	//	"9044a6953b": true,
+	//	"298b233138": true,
+	//}
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	r := kafka.NewReader(kafka.ReaderConfig{
@@ -115,7 +115,8 @@ func readFromQueue(db orm.DB) {
 	timeseriesTime := int64(0)
 	modelMap := make(map[string][]interface{})
 	filtered := 0
-	insertErrors := 1
+	insertErrors := 0
+	decodingErrors := 0
 
 	for i:=0; i<maxMessages; i++ {
 		kafkaStartTime := time.Now()
@@ -144,7 +145,7 @@ func readFromQueue(db orm.DB) {
 			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 			fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
 			fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
-			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d, filtered: %d\n", i+1, models.Inactive, insertErrors, filtered)
+			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d, filtered: %d,  decodingErrors: %d\n", i+1, models.Inactive, insertErrors, filtered, decodingErrors)
 		}
 		var rec map[string]interface{}
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
@@ -161,9 +162,11 @@ func readFromQueue(db orm.DB) {
 				} else {
 					model, err := models.DecodeModel(data)
 					if err != nil {
-						fmt.Println("Overall decoding error:", err)
+						decodingErrors += 1
+						//fmt.Println("Overall decoding error:", err)
 					} else {
-						if model != nil && userFilters[model.GetUserId()] {
+						//if model != nil && userFilters[model.GetUserId()] {
+						if model != nil {
 							_, ok := modelMap[model.GetType()]
 							if !ok {
 								modelMap[model.GetType()] = make([]interface{}, 0)
