@@ -110,7 +110,6 @@ func readFromQueue(db orm.DB) {
 	})
 
 
-
 	kafkaTime := int64(0)
 	timeseriesTime := int64(0)
 	modelMap := make(map[string][]interface{})
