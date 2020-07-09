@@ -24,3 +24,5 @@ CREATE TABLE cbg (
 );
 
 SELECT create_hypertable('cbg', 'time');
+
+
