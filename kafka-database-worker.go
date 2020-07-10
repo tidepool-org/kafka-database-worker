@@ -92,7 +92,7 @@ func readFromQueue(db orm.DB) {
 	maxMessages := 4000000
 	//maxMessages :=  0
 	startTime := time.Now()
-	writeCount := 10000
+	writeCount := 20000
 	//userFilters := map[string]bool {
 	//	"c6505473f9": true,
 	//	"9044a6953b": true,
