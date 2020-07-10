@@ -25,7 +25,7 @@ func DecodeUpload(data interface{}) (*Upload, error) {
 		Result: &upload,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding upload: ", err)
+			//fmt.Println("Error decoding upload: ", err)
 			return nil, err
 		}
 

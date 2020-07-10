@@ -27,7 +27,7 @@ func DecodeDeviceMeta(data interface{}) (*DeviceMeta, error) {
 		Result: &deviceMeta,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding device meta: ", err)
+			//fmt.Println("Error decoding device meta: ", err)
 			return nil, err
 		}
 

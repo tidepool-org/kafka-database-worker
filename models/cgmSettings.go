@@ -34,7 +34,7 @@ func DecodeCgmSettings(data interface{}) (*CgmSettings, error) {
 		Result: &cgmSettings,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding cgm settings: ", err)
+			//fmt.Println("Error decoding cgm settings: ", err)
 			return nil, err
 		}
 

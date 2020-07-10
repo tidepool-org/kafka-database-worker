@@ -36,7 +36,7 @@ func DecodePumpSettings(data interface{}) (*PumpSettings, error) {
 		Result: &pumpSettings,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding pump settings: ", err)
+			//fmt.Println("Error decoding pump settings: ", err)
 			return nil, err
 		}
 

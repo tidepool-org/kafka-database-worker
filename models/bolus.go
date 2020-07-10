@@ -22,7 +22,7 @@ func DecodeBolus(data interface{}) (*Bolus, error) {
 		Result: &bolus,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding bolus: ", err)
+			//fmt.Println("Error decoding bolus: ", err)
 			return nil, err
 		}
 

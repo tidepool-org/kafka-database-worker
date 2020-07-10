@@ -30,7 +30,7 @@ func DecodePhysicalActivity(data interface{}) (*PhysicalActivity, error) {
 		Result: &physicalActivity,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding physical activity: ", err)
+			//fmt.Println("Error decoding physical activity: ", err)
 			return nil, err
 		}
 

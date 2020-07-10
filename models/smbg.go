@@ -22,7 +22,7 @@ func DecodeSmbg(data interface{}) (*Smbg, error) {
 		Result: &smbg,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding smbg: ", err)
+			//fmt.Println("Error decoding smbg: ", err)
 			return nil, err
 		}
 

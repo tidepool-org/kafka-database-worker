@@ -26,7 +26,7 @@ func DecodeBasal(data interface{}) (*Basal, error)  {
 		Result: &basal,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding basal: ", err)
+			//fmt.Println("Error decoding basal: ", err)
 			return nil, err
 		}
 

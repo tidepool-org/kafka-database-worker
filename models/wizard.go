@@ -26,7 +26,7 @@ func DecodeWizard(data interface{}) (*Wizard, error) {
 		Result: &wizard,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding wizard: ", err)
+			//fmt.Println("Error decoding wizard: ", err)
 			return nil, err
 		}
 

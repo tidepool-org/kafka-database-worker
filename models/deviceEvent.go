@@ -32,7 +32,7 @@ func DecodeDeviceEvent(data interface{}) (*DeviceEvent, error) {
 		Result: &deviceEvent,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding device event: ", err)
+			//fmt.Println("Error decoding device event: ", err)
 			return nil, err
 		}
 
