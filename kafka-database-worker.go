@@ -89,10 +89,10 @@ func readFromQueue(db orm.DB) {
 	hostStr, _ := os.LookupEnv("KAFKA_BROKERS")
 	groupId := "Tidepool-Mongo-Consumer6"
 	//maxMessages := 40000000
-	maxMessages := 4000000
+	maxMessages := 8000000
 	//maxMessages :=  0
 	startTime := time.Now()
-	writeCount := 20000
+	writeCount := 50000
 	//userFilters := map[string]bool {
 	//	"c6505473f9": true,
 	//	"9044a6953b": true,
@@ -196,6 +196,6 @@ func main() {
 	// Hack - do not quit for now
 	fmt.Println("Sleeping until the end of time")
 	for {
-		time.Sleep(10 * time.Second)
+		time.Sleep(100 * time.Second)
 	}
 }
