@@ -88,11 +88,10 @@ func readFromQueue(db orm.DB) {
 	partition := 0
 	hostStr, _ := os.LookupEnv("KAFKA_BROKERS")
 	groupId := "Tidepool-Mongo-Consumer6"
-	//maxMessages := 40000000
-	maxMessages := 8000000
+	maxMessages := 40000000
 	//maxMessages :=  0
 	startTime := time.Now()
-	writeCount := 50000
+	writeCount := 75000
 	//userFilters := map[string]bool {
 	//	"c6505473f9": true,
 	//	"9044a6953b": true,
