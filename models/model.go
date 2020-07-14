@@ -33,6 +33,7 @@ func DecodeGeneralModel(data interface{}, topic string) (Model, error) {
 		user, err := DecodeUser(data)
 		return user, err
 	}
+	fmt.Println("Could not decode.  Do not have a database for topic: ", topic)
 	return nil, nil
 }
 
