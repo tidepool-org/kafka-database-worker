@@ -23,7 +23,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer11"
+	GroupId = "Tidepool-Mongo-Consumer12"
 	MaxMessages = 40000000
 	WriteCount = 50000
 
@@ -222,7 +222,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 					model, err := models.DecodeModel(data, topic)
 					if err != nil {
 						decodingErrors += 1
-						fmt.Println(topic, "Overall decoding error:", err)
+						//fmt.Println(topic, "Overall decoding error:", err)
 					} else {
 						//if model != nil && userFilters[model.GetUserId()] {
 						if model != nil {
@@ -233,7 +233,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 							modelMap[model.GetType()] = append(modelMap[model.GetType()], model)
 						} else {
 							filtered += 1
-							fmt.Println(topic, "Model returned nil")
+							//fmt.Println(topic, "Model returned nil")
 						}
 					}
 				}
