@@ -10,4 +10,4 @@ truncate pump_settings;
 truncate smbg;
 truncate upload;
 truncate wizard;
-truncate user;
+truncate users;
