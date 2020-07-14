@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"time"
 	"github.com/segmentio/kafka-go"
 	"encoding/json"
@@ -50,7 +51,7 @@ func (d dbLogger) AfterQuery(c context.Context, q *pg.QueryEvent) error {
 }
 
 
-func writeToDatabase() {
+func connectToDatabase() *pg.DB {
 	// Connect to db
 	user, _ := os.LookupEnv("TIMESCALEDB_USER")
 	password, _ := os.LookupEnv("TIMESCALEDB_PASSWORD")
@@ -65,7 +66,6 @@ func writeToDatabase() {
 	}
 
 	db := pg.Connect(opt)
-	defer db.Close()
 	fmt.Println("Trying to connect to db")
 
 	ctx := NewDbContext()
@@ -76,15 +76,60 @@ func writeToDatabase() {
 	// Check if connection credentials are valid and PostgreSQL is up and running.
 	if err := db.Ping(ctx); err != nil {
 		fmt.Println("Error: ", err)
-		return
+		return nil
 	}
 	fmt.Println("Connected successfully")
 
-	readFromQueue(db)
+	return db
 }
 
-func readFromQueue(db orm.DB) {
-	topic, _ := os.LookupEnv("KAFKA_TOPIC")
+func worker(wg *sync.WaitGroup, db orm.DB, id int, jobs <-chan []interface{}, results chan<- bool) {
+	for j := range jobs {
+		fmt.Println("worker", id, "started  job", "len: ", cap(jobs))
+		db.Insert(j)
+		if err := db.Insert(j...); err != nil {
+			// error has occurred
+			fmt.Println("worker", id, "finished job - insert error")
+			results <- true
+		} else {
+			results <- false
+		}
+	}
+	fmt.Println("worker", id, "Completed");
+	wg.Done()
+}
+
+func result(done chan bool, results <-chan  bool) {
+	for result := range results {
+		fmt.Println("Got Result for: ", result)
+	}
+	done <- true
+}
+
+func createWorkers(numWorkers int, db orm.DB, jobs <- chan []interface{}, results chan <- bool) {
+	var wg sync.WaitGroup
+	for i := 1; i <= numWorkers; i++ {
+		wg.Add(1)
+		//fmt.Println("Created worker: ", i)
+		go worker(&wg, db, i, jobs, results)
+	}
+	wg.Wait()
+	close(results)
+}
+
+func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
+	const numWorkers = 5
+	jobs := make(chan []interface{}, 5)
+	results := make(chan bool)
+	done := make(chan bool)
+
+
+	go result(done, results)
+
+
+	go createWorkers(numWorkers, db, jobs, results)
+
+
 	partition := 0
 	hostStr, _ := os.LookupEnv("KAFKA_BROKERS")
 	groupId := "Tidepool-Mongo-Consumer6"
@@ -132,10 +177,11 @@ func readFromQueue(db orm.DB) {
 
 			for _, val := range modelMap {
 				if len(val) > 0 {
-					if err := db.Insert(val...); err != nil {
-						fmt.Println("Error inserting: ", err)
-						insertErrors += 1
-					}
+					jobs <- val
+					//if err := db.Insert(val...); err != nil {
+					//	fmt.Println("Error inserting: ", err)
+					//	insertErrors += 1
+					//}
 				}
 			}
 			timeseriesDeltaTime := time.Now().Sub(timeseriesStartTime).Nanoseconds()
@@ -159,7 +205,7 @@ func readFromQueue(db orm.DB) {
 				if err := json.Unmarshal([]byte(data_string), &data); err != nil {
 					fmt.Println("Error Unmarshalling after field", err)
 				} else {
-					model, err := models.DecodeModel(data)
+					model, err := models.DecodeModel(data, topic)
 					if err != nil {
 						decodingErrors += 1
 						//fmt.Println("Overall decoding error:", err)
@@ -181,16 +227,31 @@ func readFromQueue(db orm.DB) {
 		//r.CommitMessages(context.Background(), m)
 	}
 
+	close(jobs)
 	r.Close()
+	wg.Done()
 }
 
 func main() {
+	topics, _ := os.LookupEnv("KAFKA_TOPIC")
+
 	fmt.Println("In main")
 	time.Sleep(10 * time.Second)
 	fmt.Println("Finished sleep")
 
 	startTime := time.Now()
-	writeToDatabase()
+	db := connectToDatabase()
+	defer db.Close()
+
+	var wg sync.WaitGroup
+	i := 1
+	for _, topic := range strings.Split(topics, ",") {
+		wg.Add(1)
+		i++
+		go readFromQueue(&wg, db, topic)
+	}
+	wg.Wait()
+
 	fmt.Printf("Duration in seconds: %f\n", time.Now().Sub(startTime).Seconds())
 	// Hack - do not quit for now
 	fmt.Println("Sleeping until the end of time")

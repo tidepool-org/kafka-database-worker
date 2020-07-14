@@ -10,21 +10,41 @@ import (
 
 var Active = 0
 var Inactive = 0
+const DeviceDataCollection = "deviceData"
+const UserCollection = "user"
 
-type BaseModel struct {
+type BaseDeviceModel struct {
 	Type      string `mapstructure:"type"`
 	Active    bool `mapstructure:"_active"`
 }
 
-func DecodeModel(data interface{}) (Model, error) {
-	var baseModel BaseModel
-	if err := mapstructure.Decode(data, &baseModel); err != nil {
+func DecodeModel(data interface{}, topic string) (Model, error) {
+	switch {
+	case strings.HasSuffix(topic, DeviceDataCollection):
+		return DecodeDeviceModel(data)
+	default:
+		return DecodeGeneralModel(data, topic)
+	}
+}
+
+func DecodeGeneralModel(data interface{}, topic string) (Model, error) {
+	switch {
+	case strings.HasSuffix(topic, UserCollection):
+		user, err := DecodeUser(data)
+		return user, err
+	}
+	return nil, nil
+}
+
+func DecodeDeviceModel(data interface{}) (Model, error) {
+	var baseDeviceModel BaseDeviceModel
+	if err := mapstructure.Decode(data, &baseDeviceModel); err != nil {
 		fmt.Println("Problem decoding base model", err)
 		return nil, err
 	}
-	if baseModel.Active {
+	if baseDeviceModel.Active {
 		Active += 1
-		switch baseModel.Type {
+		switch baseDeviceModel.Type {
 		case "upload":
 			upload, err := DecodeUpload(data)
 			return upload, err
@@ -62,7 +82,7 @@ func DecodeModel(data interface{}) (Model, error) {
 			deviceMeta, err := DecodeDeviceMeta(data)
 			return deviceMeta, err
 		default:
-			fmt.Println("Currently not handling type: ", baseModel.Type)
+			fmt.Println("Currently not handling type: ", baseDeviceModel.Type)
 		}
 	} else {
 		Inactive += 1

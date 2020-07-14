@@ -25,4 +25,4 @@ CREATE TABLE cbg (
 
 SELECT create_hypertable('cbg', 'time');
 
-
+CREATE INDEX on cbg (user_id, time, value);
