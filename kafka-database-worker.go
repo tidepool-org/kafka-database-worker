@@ -18,7 +18,15 @@ import (
 )
 
 var (
-	ContextTimeout = time.Duration(20)*time.Second
+	DBContextTimeout = time.Duration(20)*time.Second
+	KafkaContextTimeout = time.Duration(60)*time.Second
+
+	Partition = 0
+	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
+	GroupId = "Tidepool-Mongo-Consumer7"
+	MaxMessages = 40000000
+	WriteCount = 50000
+
 )
 
 
@@ -31,7 +39,12 @@ func init() {
 }
 
 func NewDbContext() context.Context {
-	ctx, _ := context.WithTimeout(context.Background(), ContextTimeout)
+	ctx, _ := context.WithTimeout(context.Background(), DBContextTimeout)
+	return ctx
+}
+
+func NewKafkaContext() context.Context {
+	ctx, _ := context.WithTimeout(context.Background(), KafkaContextTimeout)
 	return ctx
 }
 
@@ -106,6 +119,23 @@ func result(done chan bool, results <-chan  bool) {
 	done <- true
 }
 
+func sendToDB(modelMap map[string][]interface{}, jobs chan <- []interface{}, count int,
+              filtered int, decodingErrors int, deltaTime int64) {
+	dataReceived := false
+	for _, val := range modelMap {
+		if len(val) > 0 {
+			jobs <- val
+			dataReceived = true
+		}
+	}
+	//fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
+	//fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
+	if dataReceived {
+		fmt.Printf("DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", deltaTime/1000, count+1, models.Inactive, filtered, decodingErrors)
+	}
+
+}
+
 func createWorkers(numWorkers int, db orm.DB, jobs <- chan []interface{}, results chan <- bool) {
 	var wg sync.WaitGroup
 	for i := 1; i <= numWorkers; i++ {
@@ -123,6 +153,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 	results := make(chan bool)
 	done := make(chan bool)
 
+	fmt.Println("Reading topic: ", topic)
+
 
 	go result(done, results)
 
@@ -130,13 +162,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 	go createWorkers(numWorkers, db, jobs, results)
 
 
-	partition := 0
-	hostStr, _ := os.LookupEnv("KAFKA_BROKERS")
-	groupId := "Tidepool-Mongo-Consumer6"
-	maxMessages := 40000000
 	//maxMessages :=  0
-	startTime := time.Now()
-	writeCount := 75000
+	prevTime := time.Now()
 	//userFilters := map[string]bool {
 	//	"c6505473f9": true,
 	//	"9044a6953b": true,
@@ -145,56 +172,40 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{hostStr},
+		Brokers:   []string{HostStr},
 		Topic:     topic,
-		GroupID:   groupId,
-		Partition: partition,
+		GroupID:   GroupId,
+		Partition: Partition,
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
 		CommitInterval: 10*time.Second,
 	})
 
 
-	kafkaTime := int64(0)
-	timeseriesTime := int64(0)
 	modelMap := make(map[string][]interface{})
 	filtered := 0
-	insertErrors := 0
 	decodingErrors := 0
 
-	for i:=0; i<maxMessages; i++ {
-		kafkaStartTime := time.Now()
-		m, err := r.ReadMessage(context.Background())
-		kafkaDeltaTime := time.Now().Sub(kafkaStartTime).Nanoseconds()
-		kafkaTime += kafkaDeltaTime
+	for i:=0; i<MaxMessages; i++ {
+		m, err := r.ReadMessage(NewKafkaContext())
 		if err != nil {
-			fmt.Println("Error fetching message: ", err)
-			break
+			fmt.Println(topic, "Timeout fetching message: ", err)
+			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
+			prevTime = time.Now()
+			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime)
+			modelMap = make(map[string][]interface{})
+			continue
 		}
 
-		if (i+1) % writeCount == 0 {
-			timeseriesStartTime := time.Now()
-
-			for _, val := range modelMap {
-				if len(val) > 0 {
-					jobs <- val
-					//if err := db.Insert(val...); err != nil {
-					//	fmt.Println("Error inserting: ", err)
-					//	insertErrors += 1
-					//}
-				}
-			}
-			timeseriesDeltaTime := time.Now().Sub(timeseriesStartTime).Nanoseconds()
-			timeseriesTime += timeseriesDeltaTime
+		if (i+1) % WriteCount == 0 {
+			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
+			prevTime = time.Now()
+			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime)
 			modelMap = make(map[string][]interface{})
-			fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
-			fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
-			fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
-			fmt.Printf("Messages: %d,  Archived: %d, insertErrors: %d, filtered: %d,  decodingErrors: %d\n", i+1, models.Inactive, insertErrors, filtered, decodingErrors)
 		}
 		var rec map[string]interface{}
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
-			fmt.Println("Error Unmarshalling", err)
+			fmt.Println(topic, "Error Unmarshalling", err)
 		} else {
 			//source, source_ok := rec["source"]
 			after_field, data_rec_ok := rec["after"]
@@ -203,7 +214,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 			    var data map[string]interface{}
 			    data_string := fmt.Sprintf("%v", after_field)
 				if err := json.Unmarshal([]byte(data_string), &data); err != nil {
-					fmt.Println("Error Unmarshalling after field", err)
+					fmt.Println(topic, "Error Unmarshalling after field", err)
 				} else {
 					model, err := models.DecodeModel(data, topic)
 					if err != nil {
