@@ -23,7 +23,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer7"
+	GroupId = "Tidepool-Mongo-Consumer8"
 	MaxMessages = 40000000
 	WriteCount = 50000
 
@@ -102,7 +102,7 @@ func worker(wg *sync.WaitGroup, db orm.DB, id int, jobs <-chan []interface{}, re
 		db.Insert(j)
 		if err := db.Insert(j...); err != nil {
 			// error has occurred
-			fmt.Println("worker", id, "finished job - insert error")
+			fmt.Println("worker", id, "finished job - insert error", err)
 			results <- true
 		} else {
 			results <- false
@@ -120,7 +120,7 @@ func result(done chan bool, results <-chan  bool) {
 }
 
 func sendToDB(modelMap map[string][]interface{}, jobs chan <- []interface{}, count int,
-              filtered int, decodingErrors int, deltaTime int64) {
+              filtered int, decodingErrors int, deltaTime int64, topic string) {
 	dataReceived := false
 	for _, val := range modelMap {
 		if len(val) > 0 {
@@ -131,7 +131,7 @@ func sendToDB(modelMap map[string][]interface{}, jobs chan <- []interface{}, cou
 	//fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
 	//fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
 	if dataReceived {
-		fmt.Printf("DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", deltaTime/1000, count+1, models.Inactive, filtered, decodingErrors)
+		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, models.Inactive, filtered, decodingErrors)
 	}
 
 }
@@ -192,7 +192,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 			fmt.Println(topic, "Timeout fetching message: ", err)
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
-			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime)
+			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
 			modelMap = make(map[string][]interface{})
 			continue
 		}
@@ -200,7 +200,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 		if (i+1) % WriteCount == 0 {
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
-			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime)
+			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
 			modelMap = make(map[string][]interface{})
 		}
 		var rec map[string]interface{}
