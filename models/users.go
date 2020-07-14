@@ -5,7 +5,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-type User struct {
+type Users struct {
 
 	Authenticated   bool    `mapstructure:"authenticated" pg:"authenticated"`
 
@@ -14,18 +14,18 @@ type User struct {
 	Username         string    `mapstructure:"username" pg:"username"`
 }
 
-func DecodeUser(data interface{}) (*User, error) {
-	var user = User{}
+func DecodeUser(data interface{}) (*Users, error) {
+	var users = Users{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Result: &user,
+		Result: &users,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding user: ", err)
+			fmt.Println("Error decoding users: ", err)
 			return nil, err
 		}
 
-		return &user, nil
+		return &users, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
@@ -33,10 +33,10 @@ func DecodeUser(data interface{}) (*User, error) {
 	}
 }
 
-func (u *User) GetType() string {
-	return "user"
+func (u *Users) GetType() string {
+	return "users"
 }
 
-func (u *User) GetUserId() string {
+func (u *Users) GetUserId() string {
 	return u.UserId
 }

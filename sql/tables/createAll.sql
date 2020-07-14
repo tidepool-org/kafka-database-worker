@@ -351,3 +351,9 @@ CREATE TABLE wizard (
 
 SELECT create_hypertable('wizard', 'time');
 
+CREATE TABLE users (
+                        user_id              TEXT,
+                        username             TEXT,
+                        authenticated        bool
+);
+
