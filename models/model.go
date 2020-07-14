@@ -11,7 +11,7 @@ import (
 var Active = 0
 var Inactive = 0
 const DeviceDataCollection = "deviceData"
-const UserCollection = "user"
+const UserCollection = "users"
 
 type BaseDeviceModel struct {
 	Type      string `mapstructure:"type"`
