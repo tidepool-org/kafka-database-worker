@@ -264,7 +264,7 @@ func main() {
 		wg.Add(1)
 		i++
 		numWorkers := 1
-		if strings.HasSuffix(topic, "data") {
+		if strings.HasSuffix(topic, "Data") {
 			numWorkers = DeviceDataNumWorkers
 		}
 		go readFromQueue(&wg, db, topic, numWorkers)
