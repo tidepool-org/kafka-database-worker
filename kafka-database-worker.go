@@ -26,6 +26,7 @@ var (
 	GroupId = "Tidepool-Mongo-Consumer12"
 	MaxMessages = 40000000
 	WriteCount = 50000
+	DeviceDataNumWorkers = 5
 
 )
 
@@ -150,8 +151,7 @@ func createWorkers(numWorkers int, db orm.DB, jobs <- chan []interface{}, result
 	close(results)
 }
 
-func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
-	const numWorkers = 5
+func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) {
 	jobs := make(chan []interface{}, 5)
 	results := make(chan bool)
 	done := make(chan bool)
@@ -217,7 +217,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 			    var data map[string]interface{}
 			    data_string := fmt.Sprintf("%v", after_field)
 				if err := json.Unmarshal([]byte(data_string), &data); err != nil {
-					fmt.Println(topic, "Error Unmarshalling after field", err)
+					//fmt.Println(topic, "Error Unmarshalling after field", err)
 				} else {
 					model, err := models.DecodeModel(data, topic)
 					if err != nil {
@@ -263,7 +263,11 @@ func main() {
 	for _, topic := range strings.Split(topics, ",") {
 		wg.Add(1)
 		i++
-		go readFromQueue(&wg, db, topic)
+		numWorkers := 1
+		if strings.HasSuffix(topic, "data") {
+			numWorkers = DeviceDataNumWorkers
+		}
+		go readFromQueue(&wg, db, topic, numWorkers)
 	}
 	wg.Wait()
 

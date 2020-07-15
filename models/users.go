@@ -22,12 +22,12 @@ func DecodeUser(data interface{}) (*Users, error) {
 		Result: &users,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding users: ", err)
+			//fmt.Println("Error decoding users: ", err)
 			return nil, err
 		}
 
 		if users.UserId == "" || users.Username == "" {
-			fmt.Println("Username or userid is null ")
+			//fmt.Println("Username or userid is null ")
 			return nil, errors.New("Username or userid is null")
 
 		}
