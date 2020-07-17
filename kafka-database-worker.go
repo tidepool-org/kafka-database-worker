@@ -203,7 +203,9 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		if (i+1) % WriteCount == 0 {
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
-			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
+			if strings.HasSuffix(topic, "Users") {
+				sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
+			}
 			modelMap = make(map[string][]interface{})
 		}
 		var rec map[string]interface{}
