@@ -6,15 +6,15 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-type Patients struct {
+type ClinicsPatients struct {
 	ClinicId          string    `mapstructure:"clinicId" pg:"clinic_id"`
 	PatientId          string    `mapstructure:"patientId" pg:"patient_id"`
 
 	active   bool    `mapstructure:"active" pg:"active"`
 }
 
-func DecodeClinicsPatients(data interface{}) (*Patients, error) {
-	var patients = Patients{}
+func DecodeClinicsPatients(data interface{}) (*ClinicsPatients, error) {
+	var patients = ClinicsPatients{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		Result: &patients,
@@ -38,7 +38,7 @@ func DecodeClinicsPatients(data interface{}) (*Patients, error) {
 	}
 }
 
-func (u *Patients) GetType() string {
+func (u *ClinicsPatients) GetType() string {
 	return "clinicsPatients"
 }
 

@@ -12,7 +12,7 @@ var Active = 0
 var Inactive = 0
 const DeviceDataCollection = "deviceData"
 const UsersCollection = "users"
-const ClinicsCollection = "clinics"
+const ClinicsCollection = "clinic"
 const ClinicsCliniciansCollection = "clinicsClinicians"
 const ClinicsPatientsCollection = "clinicsPatients"
 
