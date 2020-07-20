@@ -10,4 +10,8 @@ truncate pump_settings;
 truncate smbg;
 truncate upload;
 truncate wizard;
+
 truncate users;
+truncate clinics;
+truncate clinicsClinicians;
+truncate clinicsPatients;

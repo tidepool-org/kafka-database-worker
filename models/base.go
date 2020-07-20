@@ -6,7 +6,6 @@ import (
 
 type Model interface {
 	GetType() string
-	GetUserId() string
 }
 
 type Base struct {

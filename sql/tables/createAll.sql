@@ -357,3 +357,21 @@ CREATE TABLE users (
                         authenticated        bool
 );
 
+CREATE TABLE clinics (
+                         clinic_id     TEXT,
+                         name          TEXT,
+                         address       TEXT,
+                         active        bool
+);
+
+CREATE TABLE clinics_clinicians (
+                                    clinic_id     TEXT,
+                                    clinician_id  TEXT,
+                                    active        bool
+);
+
+CREATE TABLE clinics_patients (
+                                  clinic_id     TEXT,
+                                  patient_id    TEXT,
+                                  active        bool
+);
