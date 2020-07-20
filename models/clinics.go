@@ -7,7 +7,8 @@ import (
 )
 
 type Clinics struct {
-	ClinicId          string    `mapstructure:"clinicid" pg:"clinic_id"`
+	IdMap  map[string]map[string]string            `mapstructure:"_id" pg:"-"`
+	ClinicId    string        `pg:"clinic_id"`
 
 	Name         string    `mapstructure:"name" pg:"name"`
 	Address         string    `mapstructure:"address" pg:"address"`
@@ -26,6 +27,11 @@ func DecodeClinics(data interface{}) (*Clinics, error) {
 			return nil, err
 		}
 
+		if oid, ok := clinics.IdMap["_id"]; ok {
+			if cid, ok := oid["$oid"] ; ok {
+				clinics.ClinicId = cid
+			}
+		}
 		if clinics.ClinicId == ""  {
 			//fmt.Println("clinicid is null ")
 			return nil, errors.New("clinicid is null")
