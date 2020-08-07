@@ -23,7 +23,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer16"
+	GroupId = "Tidepool-Mongo-Consumer17"
 	MaxMessages = 40000000
 	WriteCount = 50000
 	DeviceDataNumWorkers = 5
@@ -203,9 +203,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		if (i+1) % WriteCount == 0 {
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
-			if strings.HasSuffix(topic, "Users") {
-				sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
-			}
+			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
 			modelMap = make(map[string][]interface{})
 		}
 		var rec map[string]interface{}
