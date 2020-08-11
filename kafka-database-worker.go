@@ -78,7 +78,7 @@ func connectToDatabase() *pg.DB {
 	}
 
 	db := pg.Connect(opt)
-	fmt.Println("Trying to connect to db")
+	fmt.Println("Trying to connect to db\n")
 
 	ctx := NewDbContext()
 
@@ -109,7 +109,7 @@ func sendToDB(db orm.DB, modelMap map[string][]interface{}, count int,
 	if dataReceived {
 		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, models.Inactive, filtered, decodingErrors)
 	} else {
-		fmt.Printf("No data received")
+		fmt.Printf("No data received\n")
 		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, models.Inactive, filtered, decodingErrors)
 	}
 
@@ -128,10 +128,12 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 	//}
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
+	groupid := GroupId + "." + topic
+	fmt.Printf("Connecting to broker: %s,  topic: %s,  groupid: %s\n", HostStr, topic, groupid)
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   []string{HostStr},
 		Topic:     topic,
-		GroupID:   GroupId + "." + topic,
+		GroupID:   groupid,
 		Partition: Partition,
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
@@ -146,7 +148,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 	for i:=0; i<MaxMessages; i++ {
 		m, err := r.ReadMessage(NewKafkaContext())
 		if err != nil {
-			fmt.Println(topic, "Timeout fetching message: ", err)
+			fmt.Println(topic, "Timeout fetching message: \n", err)
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
 			sendToDB(db, modelMap, i, filtered, decodingErrors, deltaTime, topic)
@@ -214,9 +216,12 @@ func main() {
 	var wg sync.WaitGroup
 	i := 1
 	for _, topic := range strings.Split(topics, ",") {
-		wg.Add(1)
-		i++
-		go readFromQueue(&wg, db, topic)
+		if strings.HasSuffix(topic, "Data") {
+			wg.Add(1)
+			i++
+			go readFromQueue(&wg, db, topic)
+
+		}
 	}
 	wg.Wait()
 
