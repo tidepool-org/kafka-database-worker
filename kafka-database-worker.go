@@ -23,7 +23,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer18"
+	GroupId = "Tidepool-Mongo-Consumer19"
 	MaxMessages = 40000000
 	WriteCount = 50000
 )
@@ -98,9 +98,12 @@ func connectToDatabase() *pg.DB {
 func sendToDB(db orm.DB, modelMap map[string][]interface{}, count int,
               filtered int, decodingErrors int, deltaTime int64, topic string) {
 	dataReceived := false
-	for _, val := range modelMap {
+	for key, val := range modelMap {
 		if len(val) > 0 {
-			db.Insert(val)
+			if err := db.Insert(val); err != nil {
+				fmt.Printf("Error writing to db: %s\n", err)
+				fmt.Printf("Key: %s, Val (first 300 chars): %s\n\n", key, val[0:300])
+			}
 			dataReceived = true
 		}
 	}
