@@ -23,7 +23,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer19"
+	GroupId = "Tidepool-Mongo-Consumer20"
 	MaxMessages = 40000000
 	WriteCount = 50000
 )
@@ -100,7 +100,7 @@ func sendToDB(db orm.DB, modelMap map[string][]interface{}, count int,
 	dataReceived := false
 	for key, val := range modelMap {
 		if len(val) > 0 {
-			if err := db.Insert(val); err != nil {
+			if err := db.Insert(&val); err != nil {
 				fmt.Printf("Error writing to db: %s\n", err)
 				fmt.Printf("Key: %s, Val : %s\n\n", key, val)
 			}
