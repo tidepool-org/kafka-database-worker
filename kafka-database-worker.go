@@ -131,7 +131,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   []string{HostStr},
 		Topic:     topic,
-		GroupID:   GroupId,
+		GroupID:   GroupId + "." + topic,
 		Partition: Partition,
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
