@@ -102,7 +102,7 @@ func sendToDB(db orm.DB, modelMap map[string][]interface{}, count int,
 		if len(val) > 0 {
 			if err := db.Insert(val); err != nil {
 				fmt.Printf("Error writing to db: %s\n", err)
-				fmt.Printf("Key: %s, Val (first 300 chars): %s\n\n", key, val[0:300])
+				fmt.Printf("Key: %s, Val : %s\n\n", key, val)
 			}
 			dataReceived = true
 		}
