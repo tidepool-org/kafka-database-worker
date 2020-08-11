@@ -23,7 +23,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer17"
+	GroupId = "Tidepool-Mongo-Consumer18"
 	MaxMessages = 40000000
 	WriteCount = 50000
 )
@@ -117,7 +117,7 @@ func sendToDB(db orm.DB, modelMap map[string][]interface{}, count int,
 
 
 func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
-	fmt.Println("Reading topic: ", topic)
+	fmt.Println("Reading topic: \n", topic)
 
 	//maxMessages :=  0
 	prevTime := time.Now()
