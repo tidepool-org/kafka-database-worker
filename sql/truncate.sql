@@ -13,5 +13,5 @@ truncate wizard;
 
 truncate users;
 truncate clinics;
-truncate clinicsClinicians;
-truncate clinicsPatients;
+truncate clinics_clinicians;
+truncate clinics_patients;
