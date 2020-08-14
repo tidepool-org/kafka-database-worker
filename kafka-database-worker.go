@@ -26,7 +26,7 @@ var (
 	GroupId = "Tidepool-Mongo-Consumer22"
 	MaxMessages = 40000000
 	WriteCount = 50000
-	DeviceDataNumWorkers = 5
+	DeviceDataNumWorkers = 3
 )
 
 
