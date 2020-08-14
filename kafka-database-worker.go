@@ -23,9 +23,10 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer21"
+	GroupId = "Tidepool-Mongo-Consumer22"
 	MaxMessages = 40000000
 	WriteCount = 50000
+	DeviceDataNumWorkers = 5
 )
 
 
@@ -95,15 +96,59 @@ func connectToDatabase() *pg.DB {
 	return db
 }
 
-func sendToDB(db orm.DB, modelMap map[string][]interface{}, count int,
-              filtered int, decodingErrors int, deltaTime int64, topic string) {
+//func sendToDB(db orm.DB, modelMap map[string][]interface{}, count int,
+//              filtered int, decodingErrors int, deltaTime int64, topic string) {
+//	dataReceived := false
+//	for key, val := range modelMap {
+//		if len(val) > 0 {
+//			if err := db.Insert(&val); err != nil {
+//				fmt.Printf("Error writing to db: %s\n", err)
+//				fmt.Printf("Key: %s, Val : %s\n\n", key, val)
+//			}
+//			dataReceived = true
+//		}
+//	}
+//	//fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
+//	//fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
+//	if dataReceived {
+//		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, models.Inactive, filtered, decodingErrors)
+//	} else {
+//		fmt.Printf("No data received\n")
+//		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, models.Inactive, filtered, decodingErrors)
+//	}
+//
+//}
+
+
+func worker(wg *sync.WaitGroup, db orm.DB, id int, jobs <-chan []interface{}, results chan<- bool) {
+	for j := range jobs {
+		fmt.Println("worker", id, "started  job", "len: ", cap(jobs))
+		db.Insert(j)
+		if err := db.Insert(j...); err != nil {
+			// error has occurred
+			fmt.Println("worker", id, "finished job - insert error", err)
+			results <- true
+		} else {
+			results <- false
+		}
+	}
+	fmt.Println("worker", id, "Completed");
+	wg.Done()
+}
+
+func result(done chan bool, results <-chan  bool) {
+	for result := range results {
+		fmt.Println("Got Result for: ", result)
+	}
+	done <- true
+}
+
+func sendToDB(modelMap map[string][]interface{}, jobs chan <- []interface{}, count int,
+	filtered int, decodingErrors int, deltaTime int64, topic string) {
 	dataReceived := false
-	for key, val := range modelMap {
+	for _, val := range modelMap {
 		if len(val) > 0 {
-			if err := db.Insert(&val); err != nil {
-				fmt.Printf("Error writing to db: %s\n", err)
-				fmt.Printf("Key: %s, Val : %s\n\n", key, val)
-			}
+			jobs <- val
 			dataReceived = true
 		}
 	}
@@ -112,14 +157,35 @@ func sendToDB(db orm.DB, modelMap map[string][]interface{}, count int,
 	if dataReceived {
 		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, models.Inactive, filtered, decodingErrors)
 	} else {
-		fmt.Printf("No data received\n")
 		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, models.Inactive, filtered, decodingErrors)
+
 	}
 
 }
 
+func createWorkers(numWorkers int, db orm.DB, jobs <- chan []interface{}, results chan <- bool) {
+	var wg sync.WaitGroup
+	for i := 1; i <= numWorkers; i++ {
+		wg.Add(1)
+		//fmt.Println("Created worker: ", i)
+		go worker(&wg, db, i, jobs, results)
+	}
+	wg.Wait()
+	close(results)
+}
 
-func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
+func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) {
+	jobs := make(chan []interface{}, 5)
+	results := make(chan bool)
+	done := make(chan bool)
+
+	fmt.Println("Reading topic: ", topic)
+
+
+	go result(done, results)
+
+
+	go createWorkers(numWorkers, db, jobs, results)
 	fmt.Println("Reading topic: \n", topic)
 
 	//maxMessages :=  0
@@ -154,7 +220,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 			fmt.Println(topic, "Timeout fetching message: \n", err)
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
-			sendToDB(db, modelMap, i, filtered, decodingErrors, deltaTime, topic)
+			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
 			modelMap = make(map[string][]interface{})
 			continue
 		}
@@ -162,7 +228,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string) {
 		if (i+1) % WriteCount == 0 {
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
-			sendToDB(db, modelMap, i, filtered, decodingErrors, deltaTime, topic)
+			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
 			modelMap = make(map[string][]interface{})
 		}
 		var rec map[string]interface{}
@@ -222,7 +288,11 @@ func main() {
 		if strings.HasSuffix(topic, "Data") {
 			wg.Add(1)
 			i++
-			go readFromQueue(&wg, db, topic)
+			numWorkers := 1
+			if strings.HasSuffix(topic, "Data") {
+				numWorkers = DeviceDataNumWorkers
+			}
+			go readFromQueue(&wg, db, topic, numWorkers)
 
 		}
 	}

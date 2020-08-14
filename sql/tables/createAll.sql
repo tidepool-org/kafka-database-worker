@@ -375,3 +375,8 @@ CREATE TABLE clinics_patients (
                                   patient_id    TEXT,
                                   active        bool
 );
+
+CREATE TABLE old_clinics_patients (
+                                      old_clinic_id     TEXT,
+                                      patient_id        TEXT
+);

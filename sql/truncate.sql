@@ -15,3 +15,4 @@ truncate users;
 truncate clinics;
 truncate clinics_clinicians;
 truncate clinics_patients;
+truncate old_clinics_patients;

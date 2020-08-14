@@ -15,6 +15,7 @@ const UsersCollection = "users"
 const ClinicsCollection = "clinic"
 const ClinicsCliniciansCollection = "clinicsClinicians"
 const ClinicsPatientsCollection = "clinicsPatients"
+const PermsCollection = "perms"
 
 type BaseDeviceModel struct {
 	Type      string `mapstructure:"type"`
@@ -43,6 +44,9 @@ func DecodeGeneralModel(data interface{}, topic string) (Model, error) {
 		return user, err
 	case strings.HasSuffix(topic, ClinicsPatientsCollection):
 		user, err := DecodeClinicsPatients(data)
+		return user, err
+	case strings.HasSuffix(topic, PermsCollection):
+		user, err := DecodeOldClinicsPatients(data)
 		return user, err
 	}
 	fmt.Println("Could not decode.  Do not have a database for topic: ", topic)
