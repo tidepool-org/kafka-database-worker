@@ -209,6 +209,11 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		MaxBytes:  10e6, // 10MB
 		CommitInterval: 10*time.Second,
 	})
+	defer func() {
+		if re := recover(); re != nil {
+			fmt.Println("Recovered in read from queue", re)
+		}
+	}()
 
 
 	modelMap := make(map[string][]interface{})
