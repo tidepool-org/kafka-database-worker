@@ -79,7 +79,7 @@ func connectToDatabase() *pg.DB {
 	}
 
 	db := pg.Connect(opt)
-	fmt.Println("Trying to connect to db\n")
+	fmt.Println("Trying to connect to db")
 
 	ctx := NewDbContext()
 
