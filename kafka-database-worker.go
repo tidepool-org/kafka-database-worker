@@ -157,6 +157,7 @@ func sendToDB(modelMap map[string][]interface{}, jobs chan <- []interface{}, cou
 	if dataReceived {
 		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, models.Inactive, filtered, decodingErrors)
 	} else {
+		fmt.Printf("No data received\n")
 		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, models.Inactive, filtered, decodingErrors)
 
 	}
@@ -285,16 +286,14 @@ func main() {
 	var wg sync.WaitGroup
 	i := 1
 	for _, topic := range strings.Split(topics, ",") {
+		wg.Add(1)
+		i++
+		numWorkers := 1
 		if strings.HasSuffix(topic, "Data") {
-			wg.Add(1)
-			i++
-			numWorkers := 1
-			if strings.HasSuffix(topic, "Data") {
-				numWorkers = DeviceDataNumWorkers
-			}
-			go readFromQueue(&wg, db, topic, numWorkers)
-
+			numWorkers = DeviceDataNumWorkers
 		}
+		go readFromQueue(&wg, db, topic, numWorkers)
+
 	}
 	wg.Wait()
 
