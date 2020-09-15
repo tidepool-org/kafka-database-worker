@@ -1,43 +1,14 @@
-CREATE TABLE cgm_settings (
-                              time                 TIMESTAMPTZ NOT NULL,
-
-                              created_time         TIMESTAMPTZ NULL,
-                              modified_time        TIMESTAMPTZ NULL,
-                              device_time          TIMESTAMPTZ NULL,
-
-                              device_id            TEXT NULL,
-                              id                   Text Null,
-
-                              timezone             Text Null,
-                              timezone_offset      BIGINT NULL,
-                              clock_drift_offset   BIGINT NULL,
-                              conversion_offset    BIGINT NULL,
-
-                              upload_id            Text Null,
-                              user_id              Text Null,
-
-                              revision             BIGINT Null,
-
-                              transmitter_id       Text NULL,
-                              units                Text NULL,
-
-                              low_alerts           jsonb NULL,
-                              high_alerts          jsonb NULL,
-                              rate_of_change_alerts jsonb NULL,
-                              out_of_range_alerts  jsonb NULL
-);
-
-SELECT create_hypertable('cgm_settings', 'time');
-
 CREATE TABLE basal (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,
@@ -46,6 +17,11 @@ CREATE TABLE basal (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
@@ -62,6 +38,7 @@ SELECT create_hypertable('basal', 'time');
 CREATE TABLE bolus (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
@@ -76,6 +53,11 @@ CREATE TABLE bolus (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
@@ -91,12 +73,14 @@ SELECT create_hypertable('bolus', 'time');
 CREATE TABLE cbg (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,
@@ -105,6 +89,11 @@ CREATE TABLE cbg (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
@@ -115,15 +104,17 @@ CREATE TABLE cbg (
 
 SELECT create_hypertable('cbg', 'time');
 
-CREATE TABLE device_event (
+CREATE TABLE cgm_settings (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,
@@ -132,6 +123,71 @@ CREATE TABLE device_event (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
+
+    revision             BIGINT Null,
+
+    transmitter_id       Text NULL,
+    units                Text NULL,
+
+    low_alerts           jsonb NULL,
+    high_alerts          jsonb NULL,
+    rate_of_change_alerts jsonb NULL,
+    out_of_range_alerts  jsonb NULL
+);
+
+SELECT create_hypertable('cgm_settings', 'time');
+
+CREATE TABLE clinics (
+    clinic_id     TEXT,
+    name          TEXT,
+    address       TEXT,
+    active        bool
+);
+
+
+CREATE TABLE clinics_clinicians (
+    clinic_id     TEXT,
+    clinician_id  TEXT,
+    active        bool
+);
+
+
+CREATE TABLE clinics_patients (
+    clinic_id     TEXT,
+    patient_id    TEXT,
+    active        bool
+);
+
+
+CREATE TABLE device_event (
+    time                 TIMESTAMPTZ NOT NULL,
+
+    archived_time        TIMESTAMPTZ NULL,
+    created_time         TIMESTAMPTZ NULL,
+    modified_time        TIMESTAMPTZ NULL,
+    device_time          TIMESTAMPTZ NULL,
+
+    device_id            TEXT NULL,
+    id                   Text Null,
+    guid                 Text Null,
+
+    timezone             Text Null,
+    timezone_offset      BIGINT NULL,
+    clock_drift_offset   BIGINT NULL,
+    conversion_offset    BIGINT NULL,
+
+    upload_id            Text Null,
+    user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
@@ -155,12 +211,14 @@ SELECT create_hypertable('device_event', 'time');
 CREATE TABLE device_meta (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,
@@ -169,6 +227,11 @@ CREATE TABLE device_meta (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
@@ -184,12 +247,14 @@ SELECT create_hypertable('device_meta', 'time');
 CREATE TABLE food (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,
@@ -198,6 +263,11 @@ CREATE TABLE food (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
@@ -205,15 +275,23 @@ CREATE TABLE food (
 );
 
 SELECT create_hypertable('food', 'time');
+CREATE TABLE old_clinics_patients (
+    old_clinic_id     TEXT,
+    patient_id        TEXT
+);
+
+
 CREATE TABLE physical_activity (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,
@@ -222,6 +300,11 @@ CREATE TABLE physical_activity (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
@@ -235,12 +318,14 @@ SELECT create_hypertable('physical_activity', 'time');
 CREATE TABLE pump_settings (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,
@@ -249,6 +334,11 @@ CREATE TABLE pump_settings (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
@@ -265,12 +355,14 @@ SELECT create_hypertable('pump_settings', 'time');
 CREATE TABLE smbg (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,
@@ -279,6 +371,11 @@ CREATE TABLE smbg (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
@@ -293,12 +390,14 @@ SELECT create_hypertable('smbg', 'time');
 CREATE TABLE upload (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,
@@ -307,6 +406,11 @@ CREATE TABLE upload (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
@@ -319,15 +423,24 @@ CREATE TABLE upload (
 );
 
 
+CREATE TABLE users (
+    user_id              TEXT,
+    username             TEXT,
+    authenticated        bool
+);
+
+
 CREATE TABLE wizard (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,
@@ -336,6 +449,11 @@ CREATE TABLE wizard (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
@@ -351,32 +469,3 @@ CREATE TABLE wizard (
 
 SELECT create_hypertable('wizard', 'time');
 
-CREATE TABLE users (
-                        user_id              TEXT,
-                        username             TEXT,
-                        authenticated        bool
-);
-
-CREATE TABLE clinics (
-                         clinic_id     TEXT,
-                         name          TEXT,
-                         address       TEXT,
-                         active        bool
-);
-
-CREATE TABLE clinics_clinicians (
-                                    clinic_id     TEXT,
-                                    clinician_id  TEXT,
-                                    active        bool
-);
-
-CREATE TABLE clinics_patients (
-                                  clinic_id     TEXT,
-                                  patient_id    TEXT,
-                                  active        bool
-);
-
-CREATE TABLE old_clinics_patients (
-                                      old_clinic_id     TEXT,
-                                      patient_id        TEXT
-);
