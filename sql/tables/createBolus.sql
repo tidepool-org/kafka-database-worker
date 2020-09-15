@@ -1,6 +1,7 @@
 CREATE TABLE bolus (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
@@ -15,6 +16,11 @@ CREATE TABLE bolus (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 

@@ -1,12 +1,14 @@
 CREATE TABLE upload (
     time                 TIMESTAMPTZ NOT NULL,
 
+    archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,
     modified_time        TIMESTAMPTZ NULL,
     device_time          TIMESTAMPTZ NULL,
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,
@@ -15,6 +17,11 @@ CREATE TABLE upload (
 
     upload_id            Text Null,
     user_id              Text Null,
+
+    payload              Text Null,
+    origin               Text Null,
+
+    active             boolean DEFAULT TRUE,
 
     revision             BIGINT Null,
 
