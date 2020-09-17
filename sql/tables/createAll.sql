@@ -45,6 +45,7 @@ CREATE TABLE bolus (
 
     device_id            TEXT NULL,
     id                   Text Null,
+    guid                 Text Null,
 
     timezone             Text Null,
     timezone_offset      BIGINT NULL,

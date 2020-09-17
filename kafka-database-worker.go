@@ -146,16 +146,18 @@ func result(done chan bool, results <-chan  bool) {
 func sendToDB(modelMap map[string][]interface{}, jobs chan <- []interface{}, count int,
 	filtered int, decodingErrors int, deltaTime int64, topic string) {
 	dataReceived := false
+	recs := 0
 	for _, val := range modelMap {
 		if len(val) > 0 {
 			jobs <- val
 			dataReceived = true
 		}
+		recs += len(val)
 	}
 	//fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
 	//fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
 	if dataReceived {
-		fmt.Printf("Received data\n")
+		fmt.Printf("Received data:  %d\n", recs)
 		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, filtered, decodingErrors)
 	} else {
 		fmt.Printf("No data received\n")
@@ -188,7 +190,6 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 
 
 	go createWorkers(numWorkers, db, jobs, results)
-	fmt.Println("Reading topic: \n", topic)
 
 	//maxMessages :=  0
 	prevTime := time.Now()
@@ -208,7 +209,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		Partition: Partition,
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
-		CommitInterval: 10*time.Second,
+		//CommitInterval: 10*time.Second,
 	})
 	defer func() {
 		if re := recover(); re != nil {
