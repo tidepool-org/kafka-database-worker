@@ -155,6 +155,7 @@ func sendToDB(modelMap map[string][]interface{}, jobs chan <- []interface{}, cou
 	//fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
 	//fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
 	if dataReceived {
+		fmt.Printf("Received data\n")
 		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, filtered, decodingErrors)
 	} else {
 		fmt.Printf("No data received\n")
@@ -241,9 +242,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
 			fmt.Println(topic, "Error Unmarshalling", err)
 		} else {
-			//source, source_ok := rec["source"]
 			after_field, data_rec_ok := rec["after"]
-			//if data_ok && source_ok && source == "database"{
 			if data_rec_ok {
 			    var data map[string]interface{}
 			    data_string := fmt.Sprintf("%v", after_field)
@@ -255,7 +254,6 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 						decodingErrors += 1
 						//fmt.Println(topic, "Overall decoding error:", err)
 					} else {
-						//if model != nil && userFilters[model.GetUserId()] {
 						if model != nil {
 							_, ok := modelMap[model.GetType()]
 							if !ok {
@@ -264,7 +262,6 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 							modelMap[model.GetType()] = append(modelMap[model.GetType()], model)
 						} else {
 							filtered += 1
-							//fmt.Println(topic, "Model returned nil")
 						}
 					}
 				}

@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"time"
-	"fmt"
 )
 
 type Model interface {
