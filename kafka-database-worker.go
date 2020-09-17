@@ -96,29 +96,6 @@ func connectToDatabase() *pg.DB {
 	return db
 }
 
-//func sendToDB(db orm.DB, modelMap map[string][]interface{}, count int,
-//              filtered int, decodingErrors int, deltaTime int64, topic string) {
-//	dataReceived := false
-//	for key, val := range modelMap {
-//		if len(val) > 0 {
-//			if err := db.Insert(&val); err != nil {
-//				fmt.Printf("Error writing to db: %s\n", err)
-//				fmt.Printf("Key: %s, Val : %s\n\n", key, val)
-//			}
-//			dataReceived = true
-//		}
-//	}
-//	//fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
-//	//fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
-//	if dataReceived {
-//		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, models.Inactive, filtered, decodingErrors)
-//	} else {
-//		fmt.Printf("No data received\n")
-//		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  Archived: %d, filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, models.Inactive, filtered, decodingErrors)
-//	}
-//
-//}
-
 
 func worker(wg *sync.WaitGroup, db orm.DB, id int, jobs <-chan []interface{}, results chan<- bool) {
 	for j := range jobs {
@@ -209,7 +186,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		Partition: Partition,
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
-		//CommitInterval: 10*time.Second,
+		CommitInterval: 10*time.Second,
 	})
 	defer func() {
 		if re := recover(); re != nil {
@@ -228,7 +205,6 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 			fmt.Println(topic, "Timeout fetching message: \n", err)
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
-			fmt.Printf("Send to DB - timeout - current offset: %d\n", r.Offset())
 			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
 			modelMap = make(map[string][]interface{})
 			continue
@@ -237,8 +213,6 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		if (i+1) % WriteCount == 0 {
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
-			offset := r.Offset()
-			fmt.Printf("Send to DB - current offset: %d\n", offset)
 			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
 			modelMap = make(map[string][]interface{})
 		}
@@ -292,11 +266,11 @@ func main() {
 	var wg sync.WaitGroup
 	i := 1
 	for _, topic := range strings.Split(topics, ",") {
+		wg.Add(1)
+		i++
+		numWorkers := 1
 		if strings.HasSuffix(topic, "Data") {
-			wg.Add(1)
-			i++
-			numWorkers := 1
-			//	numWorkers = DeviceDataNumWorkers
+			numWorkers = DeviceDataNumWorkers
 			go readFromQueue(&wg, db, topic, numWorkers)
 		}
 
