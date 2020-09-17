@@ -26,6 +26,11 @@ func DecodeCbg(data interface{}) (*Cbg, error) {
 			return nil, err
 		}
 
+		if err := cbg.DecodeBase(); err != nil {
+			fmt.Println("Error encoding base json: ", err)
+			return nil, err
+		}
+
 		return &cbg, nil
 
 	} else {

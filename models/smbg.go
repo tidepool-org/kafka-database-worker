@@ -26,6 +26,12 @@ func DecodeSmbg(data interface{}) (*Smbg, error) {
 			return nil, err
 		}
 
+		if err := smbg.DecodeBase(); err != nil {
+			fmt.Println("Error encoding base json: ", err)
+			return nil, err
+		}
+
+
 		return &smbg, nil
 
 	} else {

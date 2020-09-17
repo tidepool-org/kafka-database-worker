@@ -36,6 +36,12 @@ func DecodeDeviceEvent(data interface{}) (*DeviceEvent, error) {
 			return nil, err
 		}
 
+		if err := deviceEvent.DecodeBase(); err != nil {
+			fmt.Println("Error encoding base json: ", err)
+			return nil, err
+		}
+
+
 		nutritionByteArray, err := json.Marshal(deviceEvent.ReasonMap)
 		deviceEvent.ReasonJson = string(nutritionByteArray)
 		if err != nil {

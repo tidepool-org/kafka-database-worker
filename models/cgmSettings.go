@@ -38,6 +38,12 @@ func DecodeCgmSettings(data interface{}) (*CgmSettings, error) {
 			return nil, err
 		}
 
+		if err := cgmSettings.DecodeBase(); err != nil {
+			fmt.Println("Error encoding base json: ", err)
+			return nil, err
+		}
+
+
 		lowAlertsByteArray, err := json.Marshal(cgmSettings.LowAlertsMap)
 		cgmSettings.LowAlertsJson = string(lowAlertsByteArray)
 

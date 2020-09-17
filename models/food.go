@@ -27,6 +27,12 @@ func DecodeFood(data interface{}) (*Food, error) {
 			return nil, err
 		}
 
+		if err := food.DecodeBase(); err != nil {
+			fmt.Println("Error encoding base json: ", err)
+			return nil, err
+		}
+
+
 		nutritionByteArray, err := json.Marshal(food.NutritionMap)
 		food.NutritionJson = string(nutritionByteArray)
 		if err != nil {

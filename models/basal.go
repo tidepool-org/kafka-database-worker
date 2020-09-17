@@ -29,6 +29,11 @@ func DecodeBasal(data interface{}) (*Basal, error)  {
 			return nil, err
 		}
 
+		if err := basal.DecodeBase(); err != nil {
+			fmt.Println("Error encoding base json: ", err)
+			return nil, err
+		}
+
 		return &basal, nil
 
 	} else {

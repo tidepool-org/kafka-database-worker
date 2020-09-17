@@ -30,6 +30,12 @@ func DecodeWizard(data interface{}) (*Wizard, error) {
 			return nil, err
 		}
 
+		if err := wizard.DecodeBase(); err != nil {
+			fmt.Println("Error encoding base json: ", err)
+			return nil, err
+		}
+
+
 		recommendedByteArray, err := json.Marshal(wizard.RecommendedMap)
 		wizard.RecommendedJson = string(recommendedByteArray)
 		if err != nil {

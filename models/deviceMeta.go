@@ -31,6 +31,12 @@ func DecodeDeviceMeta(data interface{}) (*DeviceMeta, error) {
 			return nil, err
 		}
 
+		if err := deviceMeta.DecodeBase(); err != nil {
+			fmt.Println("Error encoding base json: ", err)
+			return nil, err
+		}
+
+
 		reasonByteArray, err := json.Marshal(deviceMeta.ReasonMap)
 		deviceMeta.ReasonJson = string(reasonByteArray)
 		if err != nil {

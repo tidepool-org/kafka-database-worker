@@ -34,6 +34,12 @@ func DecodePhysicalActivity(data interface{}) (*PhysicalActivity, error) {
 			return nil, err
 		}
 
+		if err := physicalActivity.DecodeBase(); err != nil {
+			fmt.Println("Error encoding base json: ", err)
+			return nil, err
+		}
+
+
 		durationByteArray, err := json.Marshal(physicalActivity.DurationMap)
 		physicalActivity.DurationJson = string(durationByteArray)
 		if err != nil {

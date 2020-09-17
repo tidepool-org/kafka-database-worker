@@ -29,6 +29,12 @@ func DecodeUpload(data interface{}) (*Upload, error) {
 			return nil, err
 		}
 
+		if err := upload.DecodeBase(); err != nil {
+			fmt.Println("Error encoding base json: ", err)
+			return nil, err
+		}
+
+
 		return &upload, nil
 
 	} else {

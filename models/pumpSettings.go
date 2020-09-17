@@ -40,6 +40,11 @@ func DecodePumpSettings(data interface{}) (*PumpSettings, error) {
 			return nil, err
 		}
 
+		if err := pumpSettings.DecodeBase(); err != nil {
+			fmt.Println("Error encoding base json: ", err)
+			return nil, err
+		}
+
 		basalSchedulesByteArray, err := json.Marshal(pumpSettings.BasalSchedulesMap)
 		pumpSettings.BasalSchedulesJson = string(basalSchedulesByteArray)
 		if err != nil {
