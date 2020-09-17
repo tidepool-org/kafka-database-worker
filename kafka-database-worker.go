@@ -228,6 +228,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 			fmt.Println(topic, "Timeout fetching message: \n", err)
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
+			fmt.Printf("Send to DB - timeout - current offset: %d\n", r.Offset())
 			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
 			modelMap = make(map[string][]interface{})
 			continue
@@ -236,6 +237,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		if (i+1) % WriteCount == 0 {
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
+			fmt.Printf("Send to DB - current offset: %d\n", r.Offset())
 			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
 			modelMap = make(map[string][]interface{})
 		}
