@@ -31,12 +31,9 @@ type Base struct {
 	UploadId          string     `mapstructure:"uploadId,omitempty" pg:"upload_id"`
 	UserId            string     `mapstructure:"_userId,omitempty" pg:"user_id"`
 
-	BgTargetMap             []interface{}      `mapstructure:"bgTarget" pg:"-"`
-	BgTargetJson            string                      `pg:"bg_target"`
-
-	PayloadMap        []interface{}      `mapstructure:"payload" pg:"-"`
+	PayloadMap        interface{}      `mapstructure:"payload" pg:"-"`
 	PayloadJson       string     `pg:"payload"`
-	OriginMap         []interface{}      `mapstructure:"origin" pg:"-"`
+	OriginMap         interface{}      `mapstructure:"origin" pg:"-"`
 	OriginJson        string     `pg:"origin"`
 
 	Active            bool       `mapstructure:"_active" pg:"active"`
