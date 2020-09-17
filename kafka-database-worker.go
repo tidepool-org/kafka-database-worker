@@ -237,7 +237,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		if (i+1) % WriteCount == 0 {
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
-			fmt.Printf("Send to DB - current offset: %d\n", r.Offset())
+			offset := r.Offset()
+			fmt.Printf("Send to DB - current offset: %d\n", offset)
 			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
 			modelMap = make(map[string][]interface{})
 		}
@@ -291,13 +292,13 @@ func main() {
 	var wg sync.WaitGroup
 	i := 1
 	for _, topic := range strings.Split(topics, ",") {
-		wg.Add(1)
-		i++
-		numWorkers := 1
 		if strings.HasSuffix(topic, "Data") {
-			numWorkers = DeviceDataNumWorkers
+			wg.Add(1)
+			i++
+			numWorkers := 1
+			//	numWorkers = DeviceDataNumWorkers
+			go readFromQueue(&wg, db, topic, numWorkers)
 		}
-		go readFromQueue(&wg, db, topic, numWorkers)
 
 	}
 	wg.Wait()
