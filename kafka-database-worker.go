@@ -23,8 +23,8 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer25"
-	MaxMessages = 40000000
+	GroupId = "Tidepool-Mongo-Consumer26"
+	MaxMessages = 33100000
 	WriteCount = 50000
 	DeviceDataNumWorkers = 3
 )
