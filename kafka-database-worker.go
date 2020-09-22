@@ -99,14 +99,16 @@ func connectToDatabase() *pg.DB {
 
 
 func worker(wg *sync.WaitGroup, db orm.DB, id int, jobs <-chan []interface{}, results chan<- bool) {
+	i := 0
 	for j := range jobs {
-		fmt.Println("worker", id, "started  job", "len: ", cap(jobs))
-		db.Insert(j)
+		fmt.Printf("job: %d  worker: %d  started job  len: %d \n", i, id, cap(j))
+		//db.Insert(j)
 		if err := db.Insert(j...); err != nil {
 			// error has occurred
 			fmt.Println("worker", id, "finished job - insert error", err)
 			results <- true
 		} else {
+			fmt.Println("worker", id, "finished job successfully")
 			results <- false
 		}
 	}
