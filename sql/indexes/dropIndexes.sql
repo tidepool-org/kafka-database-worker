@@ -2,7 +2,7 @@
 
 Drop INDEX basal_user_id_time_idx;
 Drop INDEX bolus_user_id_time_idx;
-Drop INDEX cbg_user_id_time_idx;
+Drop INDEX cbg_user_id_time_value_idx;
 Drop INDEX cgm_settings_user_id_time_idx;
 Drop INDEX device_event_user_id_time_idx;
 Drop INDEX device_meta_user_id_time_idx;

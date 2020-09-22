@@ -23,8 +23,9 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer27"
-	MaxMessages = 33100000
+	GroupId = "Tidepool-Mongo-Consumer29"
+	//MaxMessages = 33100000
+	MaxMessages = 100000
 	WriteCount = 50000
 	DeviceDataNumWorkers = 3
 )
@@ -221,7 +222,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 			fmt.Println(topic, "Error Unmarshalling", err)
 		} else {
 			after_field, data_rec_ok := rec["after"]
-			if data_rec_ok {
+			if data_rec_ok && after_field != nil {
 			    var data map[string]interface{}
 			    data_string := fmt.Sprintf("%v", after_field)
 				if err := json.Unmarshal([]byte(data_string), &data); err != nil {

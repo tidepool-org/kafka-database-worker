@@ -8,7 +8,7 @@ import (
 
 type OldClinicsPatients struct {
 	OldClinicId          string    `mapstructure:"userId" pg:"old_clinic_id"`
-	PatientId          string      `mapstructure:"groupId" pg:"patient_id"`
+	PatientId          string      `mapstructure:"sharerId" pg:"patient_id"`
 
 }
 
