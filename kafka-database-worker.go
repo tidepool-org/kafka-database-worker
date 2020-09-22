@@ -101,14 +101,15 @@ func connectToDatabase() *pg.DB {
 func worker(wg *sync.WaitGroup, db orm.DB, id int, jobs <-chan []interface{}, results chan<- bool) {
 	i := 0
 	for j := range jobs {
-		fmt.Printf("job: %d  worker: %d  started job  len: %d \n", i, id, cap(j))
+		i += 1
+		fmt.Printf("job: %d  worker: %d  started job  len: %d \n", i, id, len(j))
 		//db.Insert(j)
 		if err := db.Insert(j...); err != nil {
 			// error has occurred
 			fmt.Println("worker", id, "finished job - insert error", err)
 			results <- true
 		} else {
-			fmt.Println("worker", id, "finished job successfully")
+			fmt.Printf("worker: %d finished job successfully - len: %d \n", id, len(j))
 			results <- false
 		}
 	}
@@ -131,6 +132,7 @@ func sendToDB(modelMap map[string][]interface{}, jobs chan <- []interface{}, cou
 		if len(val) > 0 {
 			jobs <- val
 			dataReceived = true
+			fmt.Printf("Placed on jobs len: %d\n", len(val))
 		}
 		recs += len(val)
 	}
@@ -159,7 +161,7 @@ func createWorkers(numWorkers int, db orm.DB, jobs <- chan []interface{}, result
 }
 
 func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) {
-	jobs := make(chan []interface{}, 5)
+	jobs := make(chan []interface{})
 	results := make(chan bool)
 	done := make(chan bool)
 
@@ -248,7 +250,12 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 				}
 			}
 		}
-		//r.CommitMessages(context.Background(), m)
+
+		fmt.Println(topic, "Finishing processing messages - cleanup\n")
+		deltaTime := time.Now().Sub(prevTime).Nanoseconds()
+		prevTime = time.Now()
+		sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
+		modelMap = make(map[string][]interface{})
 	}
 
 	r.Close()
@@ -269,14 +276,13 @@ func main() {
 	var wg sync.WaitGroup
 	i := 1
 	for _, topic := range strings.Split(topics, ",") {
-		wg.Add(1)
-		i++
-		numWorkers := 1
 		if strings.HasSuffix(topic, "Data") {
+			wg.Add(1)
+			i++
+			numWorkers := 1
 			numWorkers = DeviceDataNumWorkers
 			go readFromQueue(&wg, db, topic, numWorkers)
 		}
-
 	}
 	wg.Wait()
 
