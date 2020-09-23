@@ -158,6 +158,7 @@ func createWorkers(numWorkers int, db orm.DB, jobs <- chan []interface{}, result
 	}
 	wg.Wait()
 	close(results)
+	fmt.Println("Finished all workers")
 }
 
 func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) {
@@ -252,7 +253,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		}
 
 	}
-	fmt.Println(topic, "Finishing processing messages - cleanup\n")
+	fmt.Println(topic, "Finishing processing messages - cleanup")
 	deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 	prevTime = time.Now()
 	sendToDB(modelMap, jobs, MaxMessages, filtered, decodingErrors, deltaTime, topic)
