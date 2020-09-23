@@ -257,7 +257,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 	deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 	prevTime = time.Now()
 	sendToDB(modelMap, jobs, MaxMessages, filtered, decodingErrors, deltaTime, topic)
-	modelMap = make(map[string][]interface{})
+
+	close(jobs)
 
 	r.Close()
 	wg.Done()
