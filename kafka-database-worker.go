@@ -23,7 +23,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer30"
+	GroupId = "Tidepool-Mongo-Consumer31"
 	//MaxMessages = 33100000
 	MaxMessages = 40000000
 	WriteCount = 50000
@@ -209,7 +209,6 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		m, err := r.ReadMessage(NewKafkaContext())
 		if err != nil {
 			fmt.Println(topic, "Timeout fetching message: \n", err)
-			continue
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
 			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
@@ -217,9 +216,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 			continue
 		}
 		if (i+1) % WriteCount == 0 {
-			fmt.Println("Num read: ", i)
+			fmt.Println("Num read: ", i+1)
 		}
-		continue
 
 		if (i+1) % WriteCount == 0 {
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
@@ -259,9 +257,9 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 
 	}
 	fmt.Println(topic, "Finishing processing messages - cleanup")
-	//deltaTime := time.Now().Sub(prevTime).Nanoseconds()
+	deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 	prevTime = time.Now()
-	//sendToDB(modelMap, jobs, MaxMessages, filtered, decodingErrors, deltaTime, topic)
+	sendToDB(modelMap, jobs, MaxMessages, filtered, decodingErrors, deltaTime, topic)
 
 	close(jobs)
 
