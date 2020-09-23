@@ -25,7 +25,7 @@ var (
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
 	GroupId = "Tidepool-Mongo-Consumer30"
 	//MaxMessages = 33100000
-	MaxMessages = 50000000
+	MaxMessages = 40000000
 	WriteCount = 50000
 	DeviceDataNumWorkers = 10
 )
@@ -209,12 +209,17 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		m, err := r.ReadMessage(NewKafkaContext())
 		if err != nil {
 			fmt.Println(topic, "Timeout fetching message: \n", err)
+			continue
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
 			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
 			modelMap = make(map[string][]interface{})
 			continue
 		}
+		if (i+1) % WriteCount == 0 {
+			fmt.Println("Num read: ", i)
+		}
+		continue
 
 		if (i+1) % WriteCount == 0 {
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
@@ -254,9 +259,9 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 
 	}
 	fmt.Println(topic, "Finishing processing messages - cleanup")
-	deltaTime := time.Now().Sub(prevTime).Nanoseconds()
+	//deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 	prevTime = time.Now()
-	sendToDB(modelMap, jobs, MaxMessages, filtered, decodingErrors, deltaTime, topic)
+	//sendToDB(modelMap, jobs, MaxMessages, filtered, decodingErrors, deltaTime, topic)
 
 	close(jobs)
 
