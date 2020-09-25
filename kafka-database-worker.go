@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/segmentio/kafka-go"
 	"os"
+	"reflect"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
-	"github.com/segmentio/kafka-go"
+	//"github.com/segmentio/kafka-go"
 	"encoding/json"
-
 	"github.com/tidepool.org/kafka-database-worker/models"
-
 
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
@@ -23,7 +24,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer31"
+	GroupId = "Tidepool-Mongo-Consumer32"
 	//MaxMessages = 33100000
 	MaxMessages = 40000000
 	WriteCount = 50000
@@ -74,6 +75,7 @@ func connectToDatabase() *pg.DB {
 
 
 	url := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=allow", user, password, host, db_name)
+	url = fmt.Sprintf("postgres://postgres@localhost:5432/postgres?sslmode=disable")
 	opt, err := pg.ParseURL(url)
 	if err != nil {
 		panic(err)
@@ -118,9 +120,9 @@ func worker(wg *sync.WaitGroup, db orm.DB, id int, jobs <-chan []interface{}, re
 }
 
 func result(done chan bool, results <-chan  bool) {
-	for result := range results {
-		fmt.Println("Got Result for: ", result)
-	}
+	//for result := range results {
+		//fmt.Println("Got Result for: ", result)
+	//}
 	done <- true
 }
 
@@ -132,7 +134,7 @@ func sendToDB(modelMap map[string][]interface{}, jobs chan <- []interface{}, cou
 		if len(val) > 0 {
 			jobs <- val
 			dataReceived = true
-			fmt.Printf("Placed on jobs len: %d\n", len(val))
+			//fmt.Printf("Placed on jobs len: %d\n", len(val))
 		}
 		recs += len(val)
 	}
@@ -176,11 +178,6 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 
 	//maxMessages :=  0
 	prevTime := time.Now()
-	//userFilters := map[string]bool {
-	//	"c6505473f9": true,
-	//	"9044a6953b": true,
-	//	"298b233138": true,
-	//}
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	groupid := GroupId + "." + topic
@@ -200,6 +197,17 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		}
 	}()
 
+	/*
+	filename := "ll5"
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	*/
+
 
 	modelMap := make(map[string][]interface{})
 	filtered := 0
@@ -215,6 +223,18 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 			modelMap = make(map[string][]interface{})
 			continue
 		}
+
+		/*
+		e  := scanner.Scan()
+		if e != true {
+			fmt.Println("Scanner done")
+			break
+		}
+		line := scanner.Text()
+		b := []byte(line)
+		*/
+
+
 		if (i+1) % WriteCount == 0 {
 			fmt.Println("Num read: ", i+1)
 		}
@@ -237,9 +257,30 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 					//fmt.Println(topic, "Error Unmarshalling after field", err)
 				} else {
 					model, err := models.DecodeModel(data, topic)
+					// Do some checks to see if we can fix potential errors
+					if err != nil {
+						if strings.Contains(err.Error(), "conversionOff") {
+							v := reflect.ValueOf(data["conversionOffset"])
+							if v.Kind() == reflect.Map {
+								// get the value that the pointer v points to.
+								item := v.MapIndex(reflect.ValueOf("$numberLong"))
+								if item.IsValid() {
+									conversionOffset, e := strconv.Atoi(fmt.Sprintf("%v", item))
+									if e == nil {
+										data["conversionOffset"] = conversionOffset
+										model, err = models.DecodeModel(data, topic)
+									}
+								}
+							}
+						/*} else if strings.Contains(err.Error(), "time") {
+							t := fmt.Sprintf("%v", data["time"])
+							data["time"] = t[:len(t)-1]
+							model, err = models.DecodeModel(data, topic)*/
+						}
+					}
 					if err != nil {
 						decodingErrors += 1
-						//fmt.Println(topic, "Overall decoding error:", err)
+						fmt.Println(topic, "Overall decoding error:", err)
 					} else {
 						if model != nil {
 							_, ok := modelMap[model.GetType()]

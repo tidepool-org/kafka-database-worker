@@ -389,7 +389,7 @@ CREATE TABLE smbg (
 SELECT create_hypertable('smbg', 'time');
 
 CREATE TABLE upload (
-    time                 TIMESTAMPTZ NOT NULL,
+    time                 TIMESTAMPTZ NULL,
 
     archived_time        TIMESTAMPTZ NULL,
     created_time         TIMESTAMPTZ NULL,

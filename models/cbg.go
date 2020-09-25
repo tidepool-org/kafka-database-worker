@@ -22,7 +22,7 @@ func DecodeCbg(data interface{}) (*Cbg, error) {
 		Result: &cbg,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
-			fmt.Println("Error decoding cbg: ", err)
+			//fmt.Println("Error decoding cbg: ", err)
 			return nil, err
 		}
 

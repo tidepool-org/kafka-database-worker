@@ -30,5 +30,5 @@ CREATE TABLE cbg (
     units               Text Null
 );
 
-SELECT create_hypertable('cbg', 'time');
 
+SELECT create_hypertable('cbg', 'time');

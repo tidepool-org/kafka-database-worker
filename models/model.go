@@ -1,11 +1,11 @@
 package models
 
 import (
-	"github.com/mitchellh/mapstructure"
 	"fmt"
+	"github.com/mitchellh/mapstructure"
+	"reflect"
 	"strings"
 	"time"
-	"reflect"
 )
 
 const DeviceDataCollection = "deviceData"
@@ -116,9 +116,12 @@ func StringToTimeHookFuncTimezoneOptional(layout string) mapstructure.DecodeHook
 
 		// Convert it by parsing
 		s := data.(string)
-		if !strings.Contains(s, "Z") && !strings.Contains(s, "+") {
+		endStr := s[len(s)-9:]
+		if !strings.Contains(s, "Z") && !(strings.Contains(endStr, "+") || strings.Contains(endStr, "-")) {
 			s += "Z"
 		}
 		return time.Parse(layout, s)
 	}
 }
+
+

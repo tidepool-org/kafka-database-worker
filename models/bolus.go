@@ -27,7 +27,7 @@ func DecodeBolus(data interface{}) (*Bolus, error) {
 		}
 
 		if err := bolus.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			fmt.Println("Error decoding base json: ", err)
 			return nil, err
 		}
 
