@@ -75,7 +75,7 @@ func connectToDatabase() *pg.DB {
 
 
 	url := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=allow", user, password, host, db_name)
-	url = fmt.Sprintf("postgres://postgres@localhost:5432/postgres?sslmode=disable")
+	//url = fmt.Sprintf("postgres://postgres@localhost:5432/postgres?sslmode=disable")
 	opt, err := pg.ParseURL(url)
 	if err != nil {
 		panic(err)
