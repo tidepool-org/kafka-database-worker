@@ -24,7 +24,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer32"
+	GroupId = "Tidepool-Mongo-Consumer33"
 	//MaxMessages = 33100000
 	MaxMessages = 40000000
 	WriteCount = 50000
@@ -120,9 +120,11 @@ func worker(wg *sync.WaitGroup, db orm.DB, id int, jobs <-chan []interface{}, re
 }
 
 func result(done chan bool, results <-chan  bool) {
-	//for result := range results {
+	for result := range results {
+		if result {
+		}
 		//fmt.Println("Got Result for: ", result)
-	//}
+	}
 	done <- true
 }
 
