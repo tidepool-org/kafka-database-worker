@@ -24,7 +24,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer33"
+	GroupId = "Tidepool-Mongo-Consumer34"
 	//MaxMessages = 33100000
 	MaxMessages = 40000000
 	WriteCount = 50000
@@ -105,7 +105,6 @@ func worker(wg *sync.WaitGroup, db orm.DB, id int, jobs <-chan []interface{}, re
 	for j := range jobs {
 		i += 1
 		fmt.Printf("job: %d  worker: %d  started job  len: %d \n", i, id, len(j))
-		//db.Insert(j)
 		if err := db.Insert(j...); err != nil {
 			// error has occurred
 			fmt.Println("worker", id, "finished job - insert error", err)
@@ -140,8 +139,6 @@ func sendToDB(modelMap map[string][]interface{}, jobs chan <- []interface{}, cou
 		}
 		recs += len(val)
 	}
-	//fmt.Printf("Delta Seconds:  kafak (ms): %d,  Timeseries (ms): %d\n",  kafkaDeltaTime/1000000, timeseriesDeltaTime/1000000)
-	//fmt.Printf("Duration seconds: %f,  kafak (ms): %d,  Timeseries (ms): %d\n", time.Now().Sub(startTime).Seconds(), kafkaTime/1000000, timeseriesTime/1000000)
 	if dataReceived {
 		fmt.Printf("Received data:  %d\n", recs)
 		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, filtered, decodingErrors)
@@ -274,10 +271,6 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 									}
 								}
 							}
-						/*} else if strings.Contains(err.Error(), "time") {
-							t := fmt.Sprintf("%v", data["time"])
-							data["time"] = t[:len(t)-1]
-							model, err = models.DecodeModel(data, topic)*/
 						}
 					}
 					if err != nil {
