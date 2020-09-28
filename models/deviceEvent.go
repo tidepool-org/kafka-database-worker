@@ -1,10 +1,9 @@
 package models
 
 import (
-	"encoding/json"
+	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"time"
-	"fmt"
 )
 
 type DeviceEvent struct {
@@ -17,8 +16,8 @@ type DeviceEvent struct {
 
 	duration     int64                           `mapstructure:"duration" pg:"duration"`
 
-	ReasonMap    map[string]interface{}          `mapstructure:"reason" pg:"-"`
-	ReasonJson   string                          `pg:"reason"`
+	Reason       map[string]interface{}          `mapstructure:"reason" pg:"reason"`
+	//ReasonJson   string                          `pg:"reason"`
 
 	PrimeTarget  string                          `mapstructure:"primeTarget" pg:"prime_target"`
 	Volume       float64                         `mapstructure:"volume" pg:"volume"`
@@ -42,12 +41,12 @@ func DecodeDeviceEvent(data interface{}) (*DeviceEvent, error) {
 		}
 
 
-		nutritionByteArray, err := json.Marshal(deviceEvent.ReasonMap)
+		/*nutritionByteArray, err := json.Marshal(deviceEvent.ReasonMap)
 		deviceEvent.ReasonJson = string(nutritionByteArray)
 		if err != nil {
 			fmt.Println("Error encoding nutrition json: ", err)
 			return nil, err
-		}
+		}*/
 
 		return &deviceEvent, nil
 

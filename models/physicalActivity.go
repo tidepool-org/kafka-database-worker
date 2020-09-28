@@ -1,23 +1,19 @@
 package models
 
 import (
-	"encoding/json"
+	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"time"
-	"fmt"
 )
 
 type PhysicalActivity struct {
 	Base                                           `mapstructure:",squash"`
 
-	DurationMap    map[string]interface{}         `mapstructure:"duration" pg:"-"`
-	DurationJson   string                         `pg:"duration"`
+	Duration    map[string]interface{}         `mapstructure:"duration" pg:"duration"`
 
-	DistanceMap    map[string]interface{}         `mapstructure:"distance" pg:"-"`
-	DistanceJson   string                         `pg:"distance"`
+	Distance    map[string]interface{}         `mapstructure:"distance" pg:"distance"`
 
-	EnergyMap      map[string]interface{}         `mapstructure:"energy" pg:"-"`
-	EnergyJson     string                         `pg:"energy"`
+	Energy      map[string]interface{}         `mapstructure:"energy" pg:"energy"`
 
 	Name           string                         `mapstructure:"name" pg:"name"`
 }
@@ -36,28 +32,6 @@ func DecodePhysicalActivity(data interface{}) (*PhysicalActivity, error) {
 
 		if err := physicalActivity.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
-		}
-
-
-		durationByteArray, err := json.Marshal(physicalActivity.DurationMap)
-		physicalActivity.DurationJson = string(durationByteArray)
-		if err != nil {
-			fmt.Println("Error encoding duration json: ", err)
-			return nil, err
-		}
-
-		distanceByteArray, err := json.Marshal(physicalActivity.DistanceMap)
-		physicalActivity.DistanceJson = string(distanceByteArray)
-		if err != nil {
-			fmt.Println("Error encoding Distance json: ", err)
-			return nil, err
-		}
-
-		energyByteArray, err := json.Marshal(physicalActivity.EnergyMap)
-		physicalActivity.EnergyJson = string(energyByteArray)
-		if err != nil {
-			fmt.Println("Error encoding Energy json: ", err)
 			return nil, err
 		}
 

@@ -18,8 +18,8 @@ CREATE TABLE upload (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 

@@ -1,17 +1,15 @@
 package models
 
 import (
-	"encoding/json"
+	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"time"
-	"fmt"
 )
 
 type Food struct {
 	Base                                           `mapstructure:",squash"`
 
-	NutritionMap    map[string]interface{}         `mapstructure:"nutrition" pg:"-"`
-	NutritionJson   string                         `pg:"nutrition"`
+	Nutrition    map[string]interface{}         `mapstructure:"nutrition" pg:"nutrition"`
 
 }
 
@@ -29,14 +27,6 @@ func DecodeFood(data interface{}) (*Food, error) {
 
 		if err := food.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
-		}
-
-
-		nutritionByteArray, err := json.Marshal(food.NutritionMap)
-		food.NutritionJson = string(nutritionByteArray)
-		if err != nil {
-			//fmt.Println("Error encoding nutrition json: ", err)
 			return nil, err
 		}
 

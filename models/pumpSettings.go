@@ -1,10 +1,9 @@
 package models
 
 import (
-	"encoding/json"
+	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"time"
-	"fmt"
 )
 
 type PumpSettings struct {
@@ -12,20 +11,15 @@ type PumpSettings struct {
 
 	ActiveSchedule          string                      `mapstructure:"activeSchedule" pg:"active_schedule"`
 
-	BasalSchedulesMap       map[string]interface{}      `mapstructure:"basalSchedules" pg:"-"`
-	BasalSchedulesJson      string                      `pg:"basal_schedules"`
+	BasalSchedules       interface{}      `mapstructure:"basalSchedules" pg:"basal_schedules"`
 
-	BgTargetMap             []interface{}      `mapstructure:"bgTarget" pg:"-"`
-	BgTargetJson            string                      `pg:"bg_target"`
+	BgTarget             []interface{}      `mapstructure:"bgTarget" pg:"bg_target"`
 
-	CarbRatioMap            []interface{}      `mapstructure:"carbRatio" pg:"-"`
-	CarbRatioJson           string                      `pg:"carb_ratio"`
+	CarbRatio            []interface{}      `mapstructure:"carbRatio" pg:"carb_ratio"`
 
-	InsulinSensitivityMap   []interface{}      `mapstructure:"insulinSensitivity" pg:"-"`
-	InsulinSensitivityJson  string                      `pg:"insulin_sensitivity"`
+	InsulinSensitivity   []interface{}      `mapstructure:"insulinSensitivity" pg:"insulin_sensitivity"`
 
-	unitsMap                map[string]interface{}      `mapstructure:"units" pg:"-"`
-	unitsJson               string                      `pg:"units"`
+	units                interface{}      `mapstructure:"units" pg:"units"`
 }
 
 func DecodePumpSettings(data interface{}) (*PumpSettings, error) {
@@ -42,41 +36,6 @@ func DecodePumpSettings(data interface{}) (*PumpSettings, error) {
 
 		if err := pumpSettings.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
-		}
-
-		basalSchedulesByteArray, err := json.Marshal(pumpSettings.BasalSchedulesMap)
-		pumpSettings.BasalSchedulesJson = string(basalSchedulesByteArray)
-		if err != nil {
-			fmt.Println("Error encoding Basal Schedules json: ", err)
-			return nil, err
-		}
-
-		bgTargetMapByteArray, err := json.Marshal(pumpSettings.BgTargetMap)
-		pumpSettings.BgTargetJson = string(bgTargetMapByteArray)
-		if err != nil {
-			fmt.Println("Error encoding Bg Target json: ", err)
-			return nil, err
-		}
-
-		carbRatioMapByteArray, err := json.Marshal(pumpSettings.CarbRatioMap)
-		pumpSettings.CarbRatioJson = string(carbRatioMapByteArray)
-		if err != nil {
-			fmt.Println("Error encoding carb ration json: ", err)
-			return nil, err
-		}
-
-		insulinSensitivityByteArray, err := json.Marshal(pumpSettings.InsulinSensitivityMap)
-		pumpSettings.InsulinSensitivityJson = string(insulinSensitivityByteArray)
-		if err != nil {
-			fmt.Println("Error encoding insulin sensitivity json: ", err)
-			return nil, err
-		}
-
-		unitsMapByteArray, err := json.Marshal(pumpSettings.unitsMap)
-		pumpSettings.unitsJson = string(unitsMapByteArray)
-		if err != nil {
-			fmt.Println("Error encoding units json: ", err)
 			return nil, err
 		}
 

@@ -1,10 +1,9 @@
 package models
 
 import (
-	"encoding/json"
+	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"time"
-	"fmt"
 )
 
 type Wizard struct {
@@ -13,8 +12,7 @@ type Wizard struct {
 	Bolus             string                         `mapstructure:"bolus" pg:"bolus"`
 	Units             string                         `mapstructure:"units" pg:"units"`
 
-	RecommendedMap    map[string]interface{}         `mapstructure:"recommended" pg:"-"`
-	RecommendedJson   string                         `pg:"recommended"`
+	Recommended    map[string]interface{}         `mapstructure:"recommended" pg:"recommended"`
 
 }
 
@@ -32,14 +30,6 @@ func DecodeWizard(data interface{}) (*Wizard, error) {
 
 		if err := wizard.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
-		}
-
-
-		recommendedByteArray, err := json.Marshal(wizard.RecommendedMap)
-		wizard.RecommendedJson = string(recommendedByteArray)
-		if err != nil {
-			fmt.Println("Error encoding recommended json: ", err)
 			return nil, err
 		}
 

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 )
 
@@ -31,10 +30,8 @@ type Base struct {
 	UploadId          string     `mapstructure:"uploadId,omitempty" pg:"upload_id"`
 	UserId            string     `mapstructure:"_userId,omitempty" pg:"user_id"`
 
-	PayloadMap        interface{}      `mapstructure:"payload" pg:"-"`
-	PayloadJson       string     `pg:"payload"`
-	OriginMap         interface{}      `mapstructure:"origin" pg:"-"`
-	OriginJson        string     `pg:"origin"`
+	Payload        map[string]interface{}      `mapstructure:"payload" pg:"payload"`
+	Origin         map[string]interface{}      `mapstructure:"origin" pg:"origin"`
 
 	Active            bool       `mapstructure:"_active" pg:"active"`
 
@@ -42,17 +39,6 @@ type Base struct {
 }
 
 func (b *Base) DecodeBase() error {
-	payloadByteArray, err := json.Marshal(b.PayloadMap)
-	b.PayloadJson = string(payloadByteArray)
-	if err != nil {
-		return err
-	}
-
-	originByteArray, err := json.Marshal(b.OriginMap)
-	b.OriginJson = string(originByteArray)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 

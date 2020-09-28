@@ -18,8 +18,8 @@ CREATE TABLE basal (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -55,8 +55,8 @@ CREATE TABLE bolus (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -91,8 +91,8 @@ CREATE TABLE cbg (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -102,6 +102,7 @@ CREATE TABLE cbg (
 
     units               Text Null
 );
+
 
 SELECT create_hypertable('cbg', 'time');
 
@@ -125,8 +126,8 @@ CREATE TABLE cgm_settings (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -185,8 +186,8 @@ CREATE TABLE device_event (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -198,7 +199,7 @@ CREATE TABLE device_event (
     value                DOUBLE PRECISION Null,
 
     duration             BIGINT Null,
-    reason               Text Null,
+    reason               jsonb Null,
 
     prime_target          Text Null,
     volume               DOUBLE PRECISION Null
@@ -229,8 +230,8 @@ CREATE TABLE device_meta (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -265,8 +266,8 @@ CREATE TABLE food (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -276,6 +277,7 @@ CREATE TABLE food (
 );
 
 SELECT create_hypertable('food', 'time');
+
 CREATE TABLE old_clinics_patients (
     old_clinic_id     TEXT,
     patient_id        TEXT
@@ -302,8 +304,8 @@ CREATE TABLE physical_activity (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -316,6 +318,7 @@ CREATE TABLE physical_activity (
 );
 
 SELECT create_hypertable('physical_activity', 'time');
+
 CREATE TABLE pump_settings (
     time                 TIMESTAMPTZ NOT NULL,
 
@@ -336,8 +339,8 @@ CREATE TABLE pump_settings (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -373,8 +376,8 @@ CREATE TABLE smbg (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -408,8 +411,8 @@ CREATE TABLE upload (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -451,8 +454,8 @@ CREATE TABLE wizard (
     upload_id            Text Null,
     user_id              Text Null,
 
-    payload              Text Null,
-    origin               Text Null,
+    payload              jsonb Null,
+    origin               jsonb Null,
 
     active             boolean DEFAULT TRUE,
 

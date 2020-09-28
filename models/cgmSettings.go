@@ -1,10 +1,9 @@
 package models
 
 import (
-	"encoding/json"
+	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"time"
-	"fmt"
 )
 
 type CgmSettings struct {
@@ -13,17 +12,13 @@ type CgmSettings struct {
 	TransmitterId      string                        `mapstructure:"transmitterId" pg:"transmitter_id"`
 	Units             string                         `mapstructure:"units" pg:"units"`
 
-	LowAlertsMap    map[string]interface{}           `mapstructure:"lowAlerts" pg:"-"`
-	LowAlertsJson   string                           `pg:"low_alerts"`
+	LowAlerts    map[string]interface{}           `mapstructure:"lowAlerts" pg:"low_alerts"`
 
-	HighAlertsMap    map[string]interface{}           `mapstructure:"highAlerts" pg:"-"`
-	HighAlertsJson   string                           `pg:"high_alerts"`
+	HighAlerts    map[string]interface{}           `mapstructure:"highAlerts" pg:"high_alerts"`
 
-	RateOfChangeAlertsMap    map[string]interface{}   `mapstructure:"rateOfChangeAlerts" pg:"-"`
-	RateOfChangeAlertsJson   string                   `pg:"rate_of_change_alerts"`
+	RateOfChangeAlerts    map[string]interface{}   `mapstructure:"rateOfChangeAlerts" pg:"rate_of_change_alerts"`
 
-	OutOfRangeAlertsMap    map[string]interface{}    `mapstructure:"outOfRangeAlerts" pg:"-"`
-	OutOfRangeAlertsJson   string                    `pg:"out_of_range_alerts"`
+	OutOfRangeAlerts    map[string]interface{}    `mapstructure:"outOfRangeAlerts" pg:"out_of_range_alerts"`
 }
 
 func DecodeCgmSettings(data interface{}) (*CgmSettings, error) {
@@ -40,24 +35,6 @@ func DecodeCgmSettings(data interface{}) (*CgmSettings, error) {
 
 		if err := cgmSettings.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
-		}
-
-
-		lowAlertsByteArray, err := json.Marshal(cgmSettings.LowAlertsMap)
-		cgmSettings.LowAlertsJson = string(lowAlertsByteArray)
-
-		highAlertsByteArray, err := json.Marshal(cgmSettings.HighAlertsMap)
-		cgmSettings.HighAlertsJson = string(highAlertsByteArray)
-
-		rateOfChangeAlertsByteArray, err := json.Marshal(cgmSettings.RateOfChangeAlertsMap)
-		cgmSettings.RateOfChangeAlertsJson = string(rateOfChangeAlertsByteArray)
-
-		outOfRangeAlertsByteArray, err := json.Marshal(cgmSettings.OutOfRangeAlertsMap)
-		cgmSettings.OutOfRangeAlertsJson = string(outOfRangeAlertsByteArray)
-
-		if err != nil {
-			fmt.Println("Error encoding reason json: ", err)
 			return nil, err
 		}
 
