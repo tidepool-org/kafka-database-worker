@@ -9,16 +9,16 @@ import (
 type CgmSettings struct {
 	Base                                             `mapstructure:",squash"`
 
-	TransmitterId      string                        `mapstructure:"transmitterId" pg:"transmitter_id"`
-	Units             string                         `mapstructure:"units" pg:"units"`
+        TransmitterId      string                        `mapstructure:"transmitterId" pg:"transmitter_id" json:"transmitterId,omitempty"`
+        Units             string                         `mapstructure:"units" pg:"units" json:"units,omitempty"`
 
-	LowAlerts    map[string]interface{}           `mapstructure:"lowAlerts" pg:"low_alerts"`
+	LowAlerts    map[string]interface{}           `mapstructure:"lowAlerts" pg:"low_alerts" json:"lowAlerts,omitempty"`
 
-	HighAlerts    map[string]interface{}           `mapstructure:"highAlerts" pg:"high_alerts"`
+	HighAlerts    map[string]interface{}           `mapstructure:"highAlerts" pg:"high_alerts" json:"highAlerts,omitempty"`
 
-	RateOfChangeAlerts    map[string]interface{}   `mapstructure:"rateOfChangeAlerts" pg:"rate_of_change_alerts"`
+	RateOfChangeAlerts    map[string]interface{}   `mapstructure:"rateOfChangeAlerts" pg:"rate_of_change_alerts" json:"rateOfChangeAlerts,omitempty"`
 
-	OutOfRangeAlerts    map[string]interface{}    `mapstructure:"outOfRangeAlerts" pg:"out_of_range_alerts"`
+	OutOfRangeAlerts    map[string]interface{}    `mapstructure:"outOfRangeAlerts" pg:"out_of_range_alerts" json:"outOfRangeAlerts,omitempty"`
 }
 
 func DecodeCgmSettings(data interface{}) (*CgmSettings, error) {

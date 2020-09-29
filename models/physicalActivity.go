@@ -9,13 +9,13 @@ import (
 type PhysicalActivity struct {
 	Base                                           `mapstructure:",squash"`
 
-	Duration    map[string]interface{}         `mapstructure:"duration" pg:"duration"`
+	Duration    map[string]interface{}         `mapstructure:"duration" pg:"duration" json:"duration"`
 
-	Distance    map[string]interface{}         `mapstructure:"distance" pg:"distance"`
+	Distance    map[string]interface{}         `mapstructure:"distance" pg:"distance" json:"distance"`
 
-	Energy      map[string]interface{}         `mapstructure:"energy" pg:"energy"`
+	Energy      map[string]interface{}         `mapstructure:"energy" pg:"energy" json:"energy"`
 
-	Name           string                         `mapstructure:"name" pg:"name"`
+	Name           string                         `mapstructure:"name" pg:"name" json:"name"`
 }
 
 func DecodePhysicalActivity(data interface{}) (*PhysicalActivity, error) {

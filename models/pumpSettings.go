@@ -9,17 +9,17 @@ import (
 type PumpSettings struct {
 	Base                                             `mapstructure:",squash"`
 
-	ActiveSchedule          string                      `mapstructure:"activeSchedule" pg:"active_schedule"`
+	ActiveSchedule          string                      `mapstructure:"activeSchedule" pg:"active_schedule" json:"activeSchedule"`
 
-	BasalSchedules       interface{}      `mapstructure:"basalSchedules" pg:"basal_schedules"`
+	BasalSchedules       interface{}      `mapstructure:"basalSchedules" pg:"basal_schedules" json:"basalSchedules"`
 
-	BgTarget             []interface{}      `mapstructure:"bgTarget" pg:"bg_target"`
+	BgTarget             []interface{}      `mapstructure:"bgTarget" pg:"bg_target" json:"bgTarget"`
 
-	CarbRatio            []interface{}      `mapstructure:"carbRatio" pg:"carb_ratio"`
+	CarbRatio            []interface{}      `mapstructure:"carbRatio" pg:"carb_ratio" json:"carbRatio"`
 
-	InsulinSensitivity   []interface{}      `mapstructure:"insulinSensitivity" pg:"insulin_sensitivity"`
+	InsulinSensitivity   []interface{}      `mapstructure:"insulinSensitivity" pg:"insulin_sensitivity" json:"insulinSensitivity"`
 
-	units                interface{}      `mapstructure:"units" pg:"units"`
+	units                interface{}      `mapstructure:"units" pg:"units" json:"units"`
 }
 
 func DecodePumpSettings(data interface{}) (*PumpSettings, error) {

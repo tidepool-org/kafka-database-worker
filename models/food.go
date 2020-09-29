@@ -9,7 +9,7 @@ import (
 type Food struct {
 	Base                                           `mapstructure:",squash"`
 
-	Nutrition    map[string]interface{}         `mapstructure:"nutrition" pg:"nutrition"`
+	Nutrition    map[string]interface{}         `mapstructure:"nutrition" pg:"nutrition" json:"nutrition"`
 
 }
 

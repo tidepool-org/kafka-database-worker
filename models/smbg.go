@@ -9,9 +9,9 @@ import (
 type Smbg struct {
 	Base                    `mapstructure:",squash"`
 
-	Units          string    `mapstructure:"units" pg:"units"`
+	Units          string    `mapstructure:"units" pg:"units" json:"units"`
 
-	Value          float64    `mapstructure:"value" pg:"value"`
+	Value          float64    `mapstructure:"value" pg:"value" json:"value"`
 }
 
 func DecodeSmbg(data interface{}) (*Smbg, error) {
