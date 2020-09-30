@@ -348,9 +348,9 @@ CREATE TABLE pump_settings (
 
     active_schedule      Text Null,
     basal_schedules      jsonb Null,
-    bg_target            jsonb Null,
-    carb_ratio           jsonb Null,
-    insulin_sensitivity  jsonb Null,
+    bg_targets            jsonb Null,
+    carb_ratios           jsonb Null,
+    insulin_sensitivities  jsonb Null,
     units                jsonb Null
 );
 
