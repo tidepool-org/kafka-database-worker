@@ -26,6 +26,13 @@ CREATE TABLE bolus (
     revision             BIGINT Null,
 
     normal               DOUBLE PRECISION  NULL,
+    expected_normal      DOUBLE PRECISION  NULL,
+
+    extended               DOUBLE PRECISION  NULL,
+    expected_extended      DOUBLE PRECISION  NULL,
+
+    duration               DOUBLE PRECISION  NULL,
+    expected_duration      DOUBLE PRECISION  NULL,
 
     sub_type            Text Null
 
