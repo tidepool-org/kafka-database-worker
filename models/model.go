@@ -84,6 +84,11 @@ func DecodeDeviceModel(data interface{}) (Model, error) {
 		return deviceEvent, err
 	case "pumpSettings":
 		pumpSettings, err := DecodePumpSettings(data)
+		// XXX This is somewhat of a hack.  Seems like data model is not consistent
+		if err != nil {
+			pumpSettings, err := DecodePumpSettings2(data)
+			return pumpSettings, err
+		}
 		return pumpSettings, err
 	case "physicalActivity":
 		physicalActivity, err := DecodePhysicalActivity(data)

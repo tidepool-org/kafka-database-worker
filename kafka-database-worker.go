@@ -1,11 +1,13 @@
 package main
 
 import (
+	"github.com/segmentio/kafka-go"
+
 	//"bufio"
 	"context"
-	"fmt"
 	"encoding/json"
-	"github.com/segmentio/kafka-go"
+	"fmt"
+	//"github.com/segmentio/kafka-go"
 	"github.com/tidepool.org/kafka-database-worker/models"
 	//"log"
 	"os"
@@ -25,7 +27,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer39"
+	GroupId = "Tidepool-Mongo-Consumer40"
 	//MaxMessages = 33100000
 	MaxMessages = 40000000
 	WriteCount = 50000
@@ -197,8 +199,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		}
 	}()
 
-	/*
-	filename := "ll5"
+/*
+	filename := "ll"
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -206,7 +208,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	 */
+
+ */
 
 
 	modelMap := make(map[string][]interface{})
@@ -225,6 +228,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		}
 
 
+
 		/*
 		e  := scanner.Scan()
 		if e != true {
@@ -235,6 +239,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		b := []byte(line)
 
 		 */
+
 
 
 		if (i+1) % WriteCount == 0 {
@@ -248,8 +253,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 			modelMap = make(map[string][]interface{})
 		}
 		var rec map[string]interface{}
-		//if err := json.Unmarshal(m.Value, &rec); err != nil {
 		if err := json.Unmarshal(m.Value, &rec); err != nil {
+		//if err := json.Unmarshal(b, &rec); err != nil {
 			fmt.Println(topic, "Error Unmarshalling", err)
 		} else {
 			after_field, data_rec_ok := rec["after"]
@@ -312,7 +317,7 @@ func main() {
 	//topics = "deviceData"
 
 	fmt.Println("In main")
-	time.Sleep(10 * time.Second)
+	//time.Sleep(10 * time.Second)
 	fmt.Println("Finished sleep")
 
 	startTime := time.Now()
