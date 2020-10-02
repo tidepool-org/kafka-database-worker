@@ -31,6 +31,7 @@ CREATE TABLE pump_settings (
     carb_ratios           jsonb Null,
     insulin_sensitivities  jsonb Null,
     units                jsonb Null
+
 );
 
 SELECT create_hypertable('pump_settings', 'time');

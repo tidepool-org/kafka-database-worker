@@ -19,7 +19,7 @@ type PumpSettings struct {
 
 	InsulinSensitivities   map[string]interface{}      `mapstructure:"insulinSensitivities" pg:"insulin_sensitivities" json:"insulinSensitivities,omitempty"`
 
-	units                interface{}      `mapstructure:"units" pg:"units" json:"units,omitempty"`
+	Units                map[string]interface{}      `mapstructure:"units" pg:"units" json:"units,omitempty"`
 }
 
 type PumpSettings2 struct {
@@ -37,7 +37,7 @@ type PumpSettings2 struct {
 
 	InsulinSensitivities   []interface{}      `mapstructure:"insulinSensitivities" pg:"insulin_sensitivities" json:"insulinSensitivities,omitempty"`
 
-	units                interface{}      `mapstructure:"units" pg:"units" json:"units,omitempty"`
+	Units                map[string]interface{}      `mapstructure:"units" pg:"units" json:"units,omitempty"`
 }
 
 func DecodePumpSettings(data interface{}) (*PumpSettings, error) {

@@ -428,7 +428,10 @@ CREATE TABLE upload (
     data_set_type        Text Null,
     data_state           Text Null,
 
+    device_manufacturers  Text[],
+    device_model          Text Null,
     device_serial_number Text Null,
+
     state                Text Null,
     version              Text Null
 );

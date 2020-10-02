@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	//"github.com/segmentio/kafka-go"
 	"github.com/tidepool.org/kafka-database-worker/models"
 	//"log"
@@ -27,7 +28,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer40"
+	GroupId = "Tidepool-Mongo-Consumer41"
 	//MaxMessages = 33100000
 	MaxMessages = 40000000
 	WriteCount = 50000
@@ -199,7 +200,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		}
 	}()
 
-/*
+
+	/*
 	filename := "ll"
 	file, err := os.Open(filename)
 	if err != nil {
@@ -207,9 +209,10 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 	}
 	defer file.Close()
 
+
 	scanner := bufio.NewScanner(file)
 
- */
+	*/
 
 
 	modelMap := make(map[string][]interface{})
@@ -229,6 +232,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 
 
 
+
 		/*
 		e  := scanner.Scan()
 		if e != true {
@@ -237,8 +241,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		}
 		line := scanner.Text()
 		b := []byte(line)
+		*/
 
-		 */
 
 
 
