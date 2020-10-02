@@ -30,7 +30,11 @@ CREATE TABLE pump_settings (
     bg_targets            jsonb Null,
     carb_ratios           jsonb Null,
     insulin_sensitivities  jsonb Null,
-    units                jsonb Null
+    units                jsonb Null,
+
+    manufacturers          Text[],
+    model                  Text Null,
+    serial_number          Text Null
 
 );
 

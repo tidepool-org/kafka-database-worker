@@ -1,16 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"github.com/segmentio/kafka-go"
+	"log"
 
-	//"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
 
-	//"github.com/segmentio/kafka-go"
 	"github.com/tidepool.org/kafka-database-worker/models"
-	//"log"
 	"os"
 	"reflect"
 	"strconv"
@@ -28,11 +27,12 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer41"
+	GroupId = "Tidepool-Mongo-Consumer42"
 	//MaxMessages = 33100000
 	MaxMessages = 40000000
 	WriteCount = 50000
 	DeviceDataNumWorkers = 10
+	Local = false
 )
 
 
@@ -79,7 +79,9 @@ func connectToDatabase() *pg.DB {
 
 
 	url := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=allow", user, password, host, db_name)
-	//url = fmt.Sprintf("postgres://postgres@localhost:5432/postgres?sslmode=disable")
+	if Local {
+		url = fmt.Sprintf("postgres://postgres@localhost:5432/postgres?sslmode=disable")
+	}
 	opt, err := pg.ParseURL(url)
 	if err != nil {
 		panic(err)
@@ -173,9 +175,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 
 	fmt.Println("Reading topic: ", topic)
 
-
 	go result(done, results)
-
 
 	go createWorkers(numWorkers, db, jobs, results)
 
@@ -183,36 +183,39 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 	prevTime := time.Now()
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
-	groupid := GroupId + "." + topic
-	fmt.Printf("Connecting to broker: %s,  topic: %s,  groupid: %s\n", HostStr, topic, groupid)
-	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{HostStr},
-		Topic:     topic,
-		GroupID:   groupid,
-		Partition: Partition,
-		MinBytes:  10e3, // 10KB
-		MaxBytes:  10e6, // 10MB
-		CommitInterval: 10*time.Second,
-	})
-	defer func() {
-		if re := recover(); re != nil {
-			fmt.Println("Recovered in read from queue", re)
+	var r *kafka.Reader
+	var scanner *bufio.Scanner
+	if !Local {
+
+		groupid := GroupId + "." + topic
+		fmt.Printf("Connecting to broker: %s,  topic: %s,  groupid: %s\n", HostStr, topic, groupid)
+		r = kafka.NewReader(kafka.ReaderConfig{
+			Brokers:        []string{HostStr},
+			Topic:          topic,
+			GroupID:        groupid,
+			Partition:      Partition,
+			MinBytes:       10e3, // 10KB
+			MaxBytes:       10e6, // 10MB
+			CommitInterval: 10 * time.Second,
+		})
+		defer func() {
+			if re := recover(); re != nil {
+				fmt.Println("Recovered in read from queue", re)
+			}
+		}()
+
+	} else {
+
+		filename := "ll"
+		file, err := os.Open(filename)
+		if err != nil {
+			log.Fatal(err)
 		}
-	}()
+		defer file.Close()
 
+		scanner = bufio.NewScanner(file)
 
-	/*
-	filename := "ll"
-	file, err := os.Open(filename)
-	if err != nil {
-		log.Fatal(err)
 	}
-	defer file.Close()
-
-
-	scanner := bufio.NewScanner(file)
-
-	*/
 
 
 	modelMap := make(map[string][]interface{})
@@ -220,28 +223,34 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 	decodingErrors := 0
 
 	for i:=0; i<MaxMessages; i++ {
-		m, err := r.ReadMessage(NewKafkaContext())
-		if err != nil {
-			fmt.Println(topic, "Timeout fetching message: \n", err)
-			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
-			prevTime = time.Now()
-			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
-			modelMap = make(map[string][]interface{})
-			continue
+
+		var b []byte
+		if !Local {
+
+			m, err := r.ReadMessage(NewKafkaContext())
+			if err != nil {
+				fmt.Println(topic, "Timeout fetching message: \n", err)
+				deltaTime := time.Now().Sub(prevTime).Nanoseconds()
+				prevTime = time.Now()
+				sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
+				modelMap = make(map[string][]interface{})
+				continue
+			}
+			b = m.Value
+
+		} else {
+			e  := scanner.Scan()
+			if e != true {
+				fmt.Println("Scanner done")
+				break
+			}
+			line := scanner.Text()
+			b = []byte(line)
+
+
 		}
 
 
-
-
-		/*
-		e  := scanner.Scan()
-		if e != true {
-			fmt.Println("Scanner done")
-			break
-		}
-		line := scanner.Text()
-		b := []byte(line)
-		*/
 
 
 
@@ -257,8 +266,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 			modelMap = make(map[string][]interface{})
 		}
 		var rec map[string]interface{}
-		if err := json.Unmarshal(m.Value, &rec); err != nil {
-		//if err := json.Unmarshal(b, &rec); err != nil {
+		if err := json.Unmarshal(b, &rec); err != nil {
 			fmt.Println(topic, "Error Unmarshalling", err)
 		} else {
 			after_field, data_rec_ok := rec["after"]
@@ -312,16 +320,21 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 
 	close(jobs)
 
-	r.Close()
+	if !Local {
+		r.Close()
+	}
 	wg.Done()
 }
 
 func main() {
-	topics, _ := os.LookupEnv("KAFKA_TOPIC")
-	//topics = "deviceData"
-
 	fmt.Println("In main")
-	//time.Sleep(10 * time.Second)
+	topics, _ := os.LookupEnv("KAFKA_TOPIC")
+	if Local {
+		topics = "deviceData"
+	} else {
+		time.Sleep(10 * time.Second)
+	}
+
 	fmt.Println("Finished sleep")
 
 	startTime := time.Now()
