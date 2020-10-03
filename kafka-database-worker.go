@@ -29,7 +29,8 @@ var (
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
 	GroupId = "Tidepool-Mongo-Consumer42"
 	//MaxMessages = 33100000
-	MaxMessages = 40000000
+	//MaxMessages = 40000000
+	MaxMessages = 400
 	WriteCount = 50000
 	DeviceDataNumWorkers = 10
 	Local = false
