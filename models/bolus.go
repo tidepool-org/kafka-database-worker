@@ -9,6 +9,10 @@ import (
 type Bolus struct {
 	Base                    `mapstructure:",squash"`
 
+	// XXX issue with bolus.  Unfortunately - pg orm sets fields to NULL when value should be 0.  This will
+	// screw up UI.  This happens on normal field.  Sometimes it is 0, sometimes it is NULL in mongo.
+	// pg orm will always read in as null.
+
 
     Normal                 float64   `mapstructure:"normal" pg:"normal" json:"normal,omitempty"`
 	ExpectedNormal         float64   `mapstructure:"expectedNormal" pg:"expected_normal" json:"expectedNormal,omitempty"`

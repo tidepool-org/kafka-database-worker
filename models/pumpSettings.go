@@ -15,7 +15,7 @@ type PumpSettings struct {
 
 	BgTargets             map[string]interface{}      `mapstructure:"bgTargets" pg:"bg_targets" json:"bgTargets,omitempty"`
 
-	CarbRatios            map[string]interface{}      `mapstructure:"carbRatio" pg:"carb_ratios" json:"carbRatios,omitempty"`
+	CarbRatios            map[string]interface{}      `mapstructure:"carbRatios" pg:"carb_ratios" json:"carbRatios,omitempty"`
 
 	InsulinSensitivities   map[string]interface{}      `mapstructure:"insulinSensitivities" pg:"insulin_sensitivities" json:"insulinSensitivities,omitempty"`
 
