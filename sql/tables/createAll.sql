@@ -432,6 +432,8 @@ CREATE TABLE upload (
     device_model          Text Null,
     device_serial_number Text Null,
 
+    device_tags           Text[],
+
     state                Text Null,
     version              Text Null
 );
