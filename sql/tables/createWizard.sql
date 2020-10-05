@@ -25,14 +25,21 @@ CREATE TABLE wizard (
 
     revision             BIGINT Null,
 
-    bg_input             DOUBLE PRECISION  NULL,
-    carb_input           DOUBLE PRECISION  NULL,
-    insulin_carb_input   DOUBLE PRECISION  NULL,
-
     bolus                Text Null,
     units                Text Null,
 
-    recommended          jsonb NULL
+    recommended          jsonb NULL,
+
+    bg_input             DOUBLE PRECISION Null,
+    bg_target            jsonb NULL,
+
+    carb_input           BIGINT NULL,
+    insulin_carb_ratio   BIGINT NULL,
+
+    insulin_on_board     DOUBLE PRECISION NULL,
+    insulin_sensitivity  DOUBLE PRECISION NULL
+
+
 );
 
 SELECT create_hypertable('wizard', 'time');
