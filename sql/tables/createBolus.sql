@@ -20,6 +20,7 @@ CREATE TABLE bolus (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 

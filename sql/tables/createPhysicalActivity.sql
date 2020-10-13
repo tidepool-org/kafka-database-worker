@@ -20,6 +20,7 @@ CREATE TABLE physical_activity (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 

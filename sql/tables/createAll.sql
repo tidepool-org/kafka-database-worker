@@ -20,6 +20,7 @@ CREATE TABLE basal (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -57,6 +58,7 @@ CREATE TABLE bolus (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -100,6 +102,7 @@ CREATE TABLE cbg (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -135,6 +138,7 @@ CREATE TABLE cgm_settings (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -195,6 +199,7 @@ CREATE TABLE device_event (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -239,6 +244,7 @@ CREATE TABLE device_meta (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -275,6 +281,7 @@ CREATE TABLE food (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -313,6 +320,7 @@ CREATE TABLE physical_activity (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -348,6 +356,7 @@ CREATE TABLE pump_settings (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -358,7 +367,11 @@ CREATE TABLE pump_settings (
     bg_targets            jsonb Null,
     carb_ratios           jsonb Null,
     insulin_sensitivities  jsonb Null,
-    units                jsonb Null
+    units                jsonb Null,
+
+    manufacturers          Text[],
+    model                  Text Null,
+    serial_number          Text Null
 );
 
 SELECT create_hypertable('pump_settings', 'time');
@@ -385,6 +398,7 @@ CREATE TABLE smbg (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -420,6 +434,7 @@ CREATE TABLE upload (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
@@ -468,6 +483,7 @@ CREATE TABLE wizard (
 
     payload              jsonb Null,
     origin               jsonb Null,
+    annotations          jsonb Null,
 
     active             boolean DEFAULT TRUE,
 
