@@ -27,11 +27,11 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer48"
+	GroupId = "Tidepool-Mongo-Consumer49"
 	//MaxMessages = 33100000
 	MaxMessages = 40000000
 	WriteCount = 50000
-	DeviceDataNumWorkers = 10
+	DeviceDataNumWorkers = 2
 	Local = false
 )
 
@@ -193,7 +193,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 			Brokers:        []string{HostStr},
 			Topic:          topic,
 			GroupID:        groupid,
-			Partition:      Partition,
+			//Partition:      Partition,
 			MinBytes:       10e3, // 10KB
 			MaxBytes:       10e6, // 10MB
 			CommitInterval: 10 * time.Second,
