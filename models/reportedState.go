@@ -9,7 +9,7 @@ import (
 type ReportedState struct {
 	Base                      `mapstructure:",squash"`
 
-	states             map[string]interface{}      `mapstructure:"states" pg:"states" json:"states,omitempty"`
+	States             map[string]interface{}      `mapstructure:"states" pg:"states" json:"states,omitempty"`
 }
 
 func DecodeReportedState(data interface{}) (*ReportedState, error)  {

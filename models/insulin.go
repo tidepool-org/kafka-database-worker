@@ -9,7 +9,7 @@ import (
 type Insulin struct {
 	Base                `mapstructure:",squash"`
 
-	Insulin             map[string]interface{}      `mapstructure:"insulin" pg:"insulin" json:"insulin,omitempty"`
+	Dose             map[string]interface{}      `mapstructure:"dose" pg:"dose" json:"dose,omitempty"`
 }
 
 func DecodeInsulin(data interface{}) (*Insulin, error)  {

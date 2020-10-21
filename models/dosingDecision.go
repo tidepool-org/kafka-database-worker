@@ -18,7 +18,7 @@ type DosingDecision struct {
 
 	RecommendedBasal              map[string]interface{}      `mapstructure:"recommendedBasal" pg:"recommended_basal" json:"recommendedBasal,omitempty"`
 	RecommendedBolus              map[string]interface{}      `mapstructure:"recommendedBolus" pg:"recommended_bolus" json:"recommendedBolus,omitempty"`
-	units                         map[string]interface{}      `mapstructure:"units" pg:"units" json:"units,omitempty"`
+	Units                         map[string]interface{}      `mapstructure:"units" pg:"units" json:"units,omitempty"`
 
 }
 
