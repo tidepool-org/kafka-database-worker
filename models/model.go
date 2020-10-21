@@ -79,6 +79,21 @@ func DecodeDeviceModel(data interface{}) (Model, error) {
 	case "food":
 		food, err := DecodeFood(data)
 		return food, err
+	case "bloodKetone":
+		bloodKetone, err := DecodeBloodKetone(data)
+		return bloodKetone, err
+	case "reportedState":
+		reportedState, err := DecodeReportedState(data)
+		return reportedState, err
+	case "dosingDecision":
+		dosingDecision, err := DecodeDosingDecision(data)
+		return dosingDecision, err
+	case "settings":
+		settings, err := DecodeSettings(data)
+		return settings, err
+	case "insulin":
+		insulin, err := DecodeInsulin(data)
+		return insulin, err
 	case "deviceEvent":
 		deviceEvent, err := DecodeDeviceEvent(data)
 		return deviceEvent, err

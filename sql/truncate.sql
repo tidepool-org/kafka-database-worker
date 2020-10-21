@@ -1,12 +1,17 @@
 truncate basal;
+truncate blood_ketone;
 truncate bolus;
 truncate cbg;
 truncate cgm_settings;
 truncate device_event;
 truncate device_meta;
+truncate dosing_decision;
 truncate food;
+truncate insulin;
 truncate physical_activity;
 truncate pump_settings;
+truncate reported_state;
+truncate settings;
 truncate smbg;
 truncate upload;
 truncate wizard;
