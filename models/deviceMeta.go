@@ -18,28 +18,30 @@ type DeviceMeta struct {
 
 }
 
-func DecodeDeviceMeta(data interface{}) (*DeviceMeta, error) {
+func DecodeDeviceMeta(data interface{}) (*DeviceMeta, mapstructure.Metadata, error) {
 	var deviceMeta = DeviceMeta{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &deviceMeta,
+		Metadata: &metadata,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding device meta: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := deviceMeta.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 
-		return &deviceMeta, nil
+		return &deviceMeta, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, nil
+		return nil, metadata, nil
 	}
 }

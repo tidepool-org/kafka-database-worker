@@ -13,28 +13,30 @@ type ClinicsClinicians struct {
 	active   bool    `mapstructure:"active" pg:"active"`
 }
 
-func DecodeClinicsClinicians(data interface{}) (*ClinicsClinicians, error) {
+func DecodeClinicsClinicians(data interface{}) (*ClinicsClinicians, mapstructure.Metadata, error) {
 	var clinicsClinicians = ClinicsClinicians{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		Result: &clinicsClinicians,
+		Metadata: &metadata,
 	} ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding clinis: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if clinicsClinicians.ClinicId == "" || clinicsClinicians.ClinicianId == "" {
 			//fmt.Println("clinicID or cliniciansId is null ")
-			return nil, errors.New("clinicid or cliniciansid is null")
+			return nil, metadata, errors.New("clinicid or cliniciansid is null")
 
 		}
 
-		return &clinicsClinicians, nil
+		return &clinicsClinicians, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, err
+		return nil, metadata, err
 	}
 }
 

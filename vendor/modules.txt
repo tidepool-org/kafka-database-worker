@@ -1,6 +1,8 @@
 # github.com/codemodus/kace v0.5.1
 github.com/codemodus/kace
 github.com/codemodus/kace/ktrie
+# github.com/fatih/structtag v1.2.0
+github.com/fatih/structtag
 # github.com/go-pg/pg/v10 v10.0.0-beta.2
 github.com/go-pg/pg/v10
 github.com/go-pg/pg/v10/internal

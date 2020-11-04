@@ -22,21 +22,23 @@ type DeviceEvent struct {
 	Volume       float64                         `mapstructure:"volume" pg:"volume" json:"volume,omitempty"`
 }
 
-func DecodeDeviceEvent(data interface{}) (*DeviceEvent, error) {
+func DecodeDeviceEvent(data interface{}) (*DeviceEvent, mapstructure.Metadata, error) {
 	var deviceEvent = DeviceEvent{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &deviceEvent,
+		Metadata: &metadata,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding device event: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := deviceEvent.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 
@@ -47,10 +49,10 @@ func DecodeDeviceEvent(data interface{}) (*DeviceEvent, error) {
 			return nil, err
 		}*/
 
-		return &deviceEvent, nil
+		return &deviceEvent, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, nil
+		return nil, metadata, nil
 	}
 }

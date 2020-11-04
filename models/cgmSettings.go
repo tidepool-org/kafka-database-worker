@@ -21,27 +21,29 @@ type CgmSettings struct {
 	OutOfRangeAlerts    map[string]interface{}    `mapstructure:"outOfRangeAlerts" pg:"out_of_range_alerts" json:"outOfRangeAlerts,omitempty"`
 }
 
-func DecodeCgmSettings(data interface{}) (*CgmSettings, error) {
+func DecodeCgmSettings(data interface{}) (*CgmSettings, mapstructure.Metadata, error) {
 	var cgmSettings = CgmSettings{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &cgmSettings,
+		Metadata: &metadata,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding cgm settings: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := cgmSettings.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
-		return &cgmSettings, nil
+		return &cgmSettings, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, nil
+		return nil, metadata, nil
 	}
 }

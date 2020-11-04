@@ -26,27 +26,29 @@ type Wizard struct {
 
 }
 
-func DecodeWizard(data interface{}) (*Wizard, error) {
+func DecodeWizard(data interface{}) (*Wizard, mapstructure.Metadata, error) {
 	var wizard = Wizard{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &wizard,
+		Metadata: &metadata,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding wizard: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := wizard.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
-		return &wizard, nil
+		return &wizard, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, nil
+		return nil, metadata, nil
 	}
 }

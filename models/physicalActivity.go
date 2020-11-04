@@ -18,27 +18,29 @@ type PhysicalActivity struct {
 	Name string `mapstructure:"name" pg:"name" json:"name"`
 }
 
-func DecodePhysicalActivity(data interface{}) (*PhysicalActivity, error) {
+func DecodePhysicalActivity(data interface{}) (*PhysicalActivity, mapstructure.Metadata, error) {
 	var physicalActivity = PhysicalActivity{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &physicalActivity,
+		Metadata: &metadata,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding physical activity: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := physicalActivity.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
-		return &physicalActivity, nil
+		return &physicalActivity, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, nil
+		return nil, metadata, nil
 	}
 }

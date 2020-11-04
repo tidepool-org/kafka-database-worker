@@ -22,28 +22,30 @@ type Upload struct {
 	Version              string    `mapstructure:"version" pg:"version"`
 }
 
-func DecodeUpload(data interface{}) (*Upload, error) {
+func DecodeUpload(data interface{}) (*Upload, mapstructure.Metadata, error) {
 	var upload = Upload{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &upload,
+		Metadata: &metadata,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding upload: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := upload.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 
-		return &upload, nil
+		return &upload, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, nil
+		return nil, metadata, nil
 	}
 }

@@ -26,27 +26,29 @@ type Bolus struct {
 	SubType                string    `mapstructure:"subType" pg:"sub_type" json:"subType,omitempty"`
 }
 
-func DecodeBolus(data interface{}) (*Bolus, error) {
+func DecodeBolus(data interface{}) (*Bolus, mapstructure.Metadata, error) {
 	var bolus = Bolus{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &bolus,
+		Metadata: &metadata,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding bolus: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := bolus.DecodeBase(); err != nil {
 			fmt.Println("Error decoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
-		return &bolus, nil
+		return &bolus, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, nil
+		return nil, metadata, nil
 	}
 }

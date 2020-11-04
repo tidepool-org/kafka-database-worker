@@ -16,6 +16,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"errors"
 
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
@@ -27,7 +28,7 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer52"
+	GroupId = "Tidepool-Mongo-Consumer01"
 	//MaxMessages = 33100000
 	MaxMessages = 40000000
 	WriteCount = 50000
@@ -35,6 +36,10 @@ var (
 	Local = false
 )
 
+type UpdateRec struct {
+	patch string
+	id string
+}
 
 
 
@@ -106,78 +111,122 @@ func connectToDatabase() *pg.DB {
 }
 
 
-func worker(wg *sync.WaitGroup, db orm.DB, id int, jobs <-chan []interface{}, results chan<- bool) {
-	i := 0
-	for j := range jobs {
-		i += 1
-		fmt.Printf("job: %d  worker: %d  started job  len: %d \n", i, id, len(j))
-		if err := db.Insert(j...); err != nil {
-			// error has occurred
-			fmt.Println("worker", id, "finished job - insert error", err)
-			results <- true
-		} else {
-			fmt.Printf("worker: %d finished job successfully - len: %d \n", id, len(j))
-			results <- false
-		}
+func processInsert(db orm.DB, models []interface{}) {
+	fmt.Printf("started insert  len: %d \n", len(models))
+	if err := db.Insert(models...); err != nil {
+		// error has occurred
+		fmt.Println("finished - insert error", err)
 	}
-	fmt.Println("worker", id, "Completed");
-	wg.Done()
 }
 
-func result(done chan bool, results <-chan  bool) {
-	for result := range results {
-		if result {
+func processUpdates(db orm.DB, updates []UpdateRec) error {
+	models.GetModelTypes()
+	fmt.Printf("started updates  len: %d \n", len(updates))
+	for _, update := range updates {
+
+		for _, modelType := range models.GetModelTypes() {
+			var data map[string]interface{}
+			if err := json.Unmarshal([]byte(update.patch), &data); err != nil {
+				//fmt.Println(topic, "Error Unmarshalling after field", err)
+				continue
+			}
+
+			model, metadata, err := models.DecodeDeviceModelWithType(data["$set"], modelType.Type)
+			if err != nil {
+				continue
+			}
+
+			res, err := db.Model(model).
+				Column(convertKeys(metadata.Keys, modelType.TagMap)...).
+				Where("internal_mongo_id = ?", update.id).
+				Update()
+			if err != nil {
+				continue
+			}
+			if res.RowsAffected() == 0 {
+				continue
+			}
+			break
 		}
-		//fmt.Println("Got Result for: ", result)
 	}
-	done <- true
+	return nil
 }
 
-func sendToDB(modelMap map[string][]interface{}, jobs chan <- []interface{}, count int,
-	filtered int, decodingErrors int, deltaTime int64, topic string) {
-	dataReceived := false
+func convertKeys(keys []string, tagMap map[string]string) []string {
+	var convertedKeys []string
+	for _, key := range keys {
+		tag, ok := tagMap[key]
+		if ok != false {
+			convertedKeys = append(convertedKeys, tag)
+		}
+	}
+	return convertedKeys
+}
+
+func processDeletes(db orm.DB, deletes []string) error {
+	// Have to go through all the tables and see if deletes work
+	fmt.Printf("started deletes  len: %d \n", len(deletes))
+	ids := pg.Strings(deletes)
+	numDeleted := 0
+	for _, modelDef := range models.GetModels() {
+		res, err := db.Model(modelDef).Where("internal_mongo_id IN (?)", ids).Delete()
+        if err != nil {
+        	return err
+		}
+		numDeleted += res.RowsAffected()
+		if numDeleted >= len(deletes) {
+			return nil
+		}
+	}
+
+	fmt.Printf("Only Deleted %d of %d records", numDeleted, len(deletes))
+	return errors.New("Did not delete all records")
+
+}
+
+func sendToDB(db orm.DB, modelMap map[string][]interface{}, updates []UpdateRec, deletes []string, count int,
+	filtered int, decodingErrors int, deltaTime int64, topic string,
+	insertsCount int, updatesCount int, deletesCount int) {
 	recs := 0
+
+	// First do inserts
 	for _, val := range modelMap {
 		if len(val) > 0 {
-			jobs <- val
-			dataReceived = true
+			processInsert(db, val)
 			//fmt.Printf("Placed on jobs len: %d\n", len(val))
 		}
 		recs += len(val)
 	}
-	if dataReceived {
-		fmt.Printf("Received data:  %d\n", recs)
-		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, filtered, decodingErrors)
+
+	// Next do updates
+	if len(updates) > 0 {
+		if err := processUpdates(db, updates); err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	// Finally - do deletes
+	if len(deletes) > 0 {
+		if err := processDeletes(db, deletes); err != nil {
+			fmt.Println(err)
+		}
+
+	}
+
+	if recs + len(updates) + len(deletes) > 0 {
+		fmt.Printf("New inserts:  %d, updates: %d,  deletes: %d\n", recs, len(updates), len(deletes))
 	} else {
 		fmt.Printf("No data received\n")
-		fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, filtered, decodingErrors)
-
 	}
-
-}
-
-func createWorkers(numWorkers int, db orm.DB, jobs <- chan []interface{}, results chan <- bool) {
-	var wg sync.WaitGroup
-	for i := 1; i <= numWorkers; i++ {
-		wg.Add(1)
-		//fmt.Println("Created worker: ", i)
-		go worker(&wg, db, i, jobs, results)
-	}
-	wg.Wait()
-	close(results)
-	fmt.Println("Finished all workers")
+	fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, filtered, decodingErrors)
+	fmt.Printf("Totals:  Inserts: %d  Updates: %d  Deletes: %d\n", insertsCount, updatesCount, deletesCount)
+	fmt.Println("")
 }
 
 func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) {
-	jobs := make(chan []interface{})
-	results := make(chan bool)
-	done := make(chan bool)
 
 	fmt.Println("Reading topic: ", topic)
 
-	go result(done, results)
-
-	go createWorkers(numWorkers, db, jobs, results)
 
 	//maxMessages :=  0
 	prevTime := time.Now()
@@ -206,7 +255,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 
 	} else {
 
-		filename := "ll"
+		filename := "ll5"
 		file, err := os.Open(filename)
 		if err != nil {
 			log.Fatal(err)
@@ -219,10 +268,16 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 
 
 	modelMap := make(map[string][]interface{})
+	var updates []UpdateRec
+	var deletes []string
 	filtered := 0
 	decodingErrors := 0
+	insertsCount := 0
+	deletesCount := 0
+	updatesCount := 0
+	messageCount := 0
 
-	for i:=0; i<MaxMessages; i++ {
+	for messageCount =0; messageCount <MaxMessages; messageCount++ {
 
 		var b []byte
 		if !Local {
@@ -232,8 +287,10 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 				fmt.Println(topic, "Timeout fetching message: \n", err)
 				deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 				prevTime = time.Now()
-				sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
+				sendToDB(db, modelMap, updates, deletes, messageCount, filtered, decodingErrors, deltaTime, topic, insertsCount, updatesCount, deletesCount)
 				modelMap = make(map[string][]interface{})
+				deletes = []string{}
+				updates = []UpdateRec{}
 				continue
 			}
 			b = m.Value
@@ -246,37 +303,38 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 			}
 			line := scanner.Text()
 			b = []byte(line)
-
-
 		}
 
-
-
-
-
-
-		if (i+1) % WriteCount == 0 {
-			fmt.Println("Num read: ", i+1)
-		}
-
-		if (i+1) % WriteCount == 0 {
+		if (messageCount+1) % WriteCount == 0 {
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
-			sendToDB(modelMap, jobs, i, filtered, decodingErrors, deltaTime, topic)
+			sendToDB(db, modelMap, updates, deletes, messageCount, filtered, decodingErrors, deltaTime, topic, insertsCount, updatesCount, deletesCount)
 			modelMap = make(map[string][]interface{})
+			deletes = []string{}
+			updates = []UpdateRec{}
 		}
+
+		// Rec contains the entire kafka record
 		var rec map[string]interface{}
 		if err := json.Unmarshal(b, &rec); err != nil {
 			fmt.Println(topic, "Error Unmarshalling", err)
 		} else {
-			after_field, data_rec_ok := rec["after"]
-			if data_rec_ok && after_field != nil {
+
+			// This is a Create Event
+			after_field, data_field_ok := rec["after"]
+			patch_field, patch_field_ok := rec["patch"]
+			filter_field, filter_field_ok := rec["filter"]
+			if data_field_ok && after_field != nil {
+
+				// Data contains the contents of the after field which is a json object
 			    var data map[string]interface{}
-			    data_string := fmt.Sprintf("%v", after_field)
-				if err := json.Unmarshal([]byte(data_string), &data); err != nil {
+			    after_field_string := fmt.Sprintf("%v", after_field)
+				if err := json.Unmarshal([]byte(after_field_string), &data); err != nil {
 					//fmt.Println(topic, "Error Unmarshalling after field", err)
 				} else {
-					model, err := models.DecodeModel(data, topic)
+
+					// Get the internal mongoId and then decode the object according to our models
+					model, _, err := models.DecodeModel(data, topic)
 					// Do some checks to see if we can fix potential errors
 					if err != nil {
 						if strings.Contains(err.Error(), "conversionOff") {
@@ -288,7 +346,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 									conversionOffset, e := strconv.Atoi(fmt.Sprintf("%v", item))
 									if e == nil {
 										data["conversionOffset"] = conversionOffset
-										model, err = models.DecodeModel(data, topic)
+										model, _, err = models.DecodeModel(data, topic)
 									}
 								}
 							}
@@ -304,11 +362,32 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 								modelMap[model.GetType()] = make([]interface{}, 0)
 							}
 							modelMap[model.GetType()] = append(modelMap[model.GetType()], model)
+							insertsCount += 1
 						} else {
 							filtered += 1
 						}
 					}
 				}
+
+			// Check for update Event
+			} else if patch_field_ok && patch_field != nil && filter_field_ok && filter_field != nil {
+
+				if id := models.GetMongoIdFromFilterField(filter_field); id != nil {
+					updates = append(updates, UpdateRec{patch: patch_field.(string), id: *id})
+					updatesCount += 1
+				}
+
+			// Check for delete Event
+			} else if filter_field_ok && filter_field != nil {
+
+				if id := models.GetMongoIdFromFilterField(filter_field); id != nil {
+					deletes = append(deletes, *id)
+					deletesCount += 1
+				}
+
+			// Not a valid kafka event
+			} else {
+				fmt.Println("Illegal Kafka record.  After, patch and filter fields are nil")
 			}
 		}
 
@@ -316,9 +395,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 	fmt.Println(topic, "Finishing processing messages - cleanup")
 	deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 	prevTime = time.Now()
-	sendToDB(modelMap, jobs, MaxMessages, filtered, decodingErrors, deltaTime, topic)
-
-	close(jobs)
+	sendToDB(db, modelMap, updates, deletes, messageCount, filtered, decodingErrors, deltaTime, topic, insertsCount, updatesCount, deletesCount)
 
 	if !Local {
 		r.Close()

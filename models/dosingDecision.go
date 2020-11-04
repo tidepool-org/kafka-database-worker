@@ -22,28 +22,30 @@ type DosingDecision struct {
 
 }
 
-func DecodeDosingDecision(data interface{}) (*DosingDecision, error)  {
+func DecodeDosingDecision(data interface{}) (*DosingDecision, mapstructure.Metadata, error)  {
 	var dosingDecision = DosingDecision{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &dosingDecision,
+		Metadata: &metadata,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding dosingDecision: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := dosingDecision.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
-		return &dosingDecision, nil
+		return &dosingDecision, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, err
+		return nil, metadata, err
 	}
 }
 

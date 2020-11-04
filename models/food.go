@@ -13,27 +13,29 @@ type Food struct {
 
 }
 
-func DecodeFood(data interface{}) (*Food, error) {
+func DecodeFood(data interface{}) (*Food, mapstructure.Metadata, error) {
 	var food = Food{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &food,
+		Metadata: &metadata,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding food: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := food.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
-		return &food, nil
+		return &food, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, nil
+		return nil, metadata, nil
 	}
 }

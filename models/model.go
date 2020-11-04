@@ -20,7 +20,7 @@ type BaseDeviceModel struct {
 	Active    bool `mapstructure:"_active"`
 }
 
-func DecodeModel(data interface{}, topic string) (Model, error) {
+func DecodeModel(data interface{}, topic string) (Model, mapstructure.Metadata, error) {
 	switch {
 	case strings.HasSuffix(topic, DeviceDataCollection):
 		return DecodeDeviceModel(data)
@@ -29,95 +29,99 @@ func DecodeModel(data interface{}, topic string) (Model, error) {
 	}
 }
 
-func DecodeGeneralModel(data interface{}, topic string) (Model, error) {
+func DecodeGeneralModel(data interface{}, topic string) (Model, mapstructure.Metadata, error) {
 	switch {
 	case strings.HasSuffix(topic, UsersCollection):
-		user, err := DecodeUser(data)
-		return user, err
+		user, metadata, err := DecodeUser(data)
+		return user, metadata, err
 	case strings.HasSuffix(topic, ClinicsCollection):
-		user, err := DecodeClinics(data)
-		return user, err
+		user, metadata, err := DecodeClinics(data)
+		return user, metadata, err
 	case strings.HasSuffix(topic, ClinicsCliniciansCollection):
-		user, err := DecodeClinicsClinicians(data)
-		return user, err
+		user, metadata, err := DecodeClinicsClinicians(data)
+		return user, metadata, err
 	case strings.HasSuffix(topic, ClinicsPatientsCollection):
-		user, err := DecodeClinicsPatients(data)
-		return user, err
+		user, metadata, err := DecodeClinicsPatients(data)
+		return user, metadata, err
 	case strings.HasSuffix(topic, PermsCollection):
-		user, err := DecodeOldClinicsPatients(data)
-		return user, err
+		user, metadata, err := DecodeOldClinicsPatients(data)
+		return user, metadata, err
 	}
 	fmt.Println("Could not decode.  Do not have a database for topic: ", topic)
-	return nil, nil
+	return nil, mapstructure.Metadata{}, nil
 }
 
-func DecodeDeviceModel(data interface{}) (Model, error) {
+func DecodeDeviceModel(data interface{}) (Model, mapstructure.Metadata, error) {
 	var baseDeviceModel BaseDeviceModel
 	if err := mapstructure.Decode(data, &baseDeviceModel); err != nil {
 		fmt.Println("Problem decoding base model", err)
-		return nil, err
+		return nil, mapstructure.Metadata{}, err
 	}
-	switch baseDeviceModel.Type {
-	case "upload":
-		upload, err := DecodeUpload(data)
-		return upload, err
+	return DecodeDeviceModelWithType(data, baseDeviceModel.Type)
+}
+
+func DecodeDeviceModelWithType(data interface{}, modelType string) (Model, mapstructure.Metadata, error) {
+	switch modelType {
 	case "basal":
-		basal, err := DecodeBasal(data)
-		return basal, err
-	case "bolus":
-		bolus, err := DecodeBolus(data)
-		return bolus, err
-	case "cbg":
-		cbg, err := DecodeCbg(data)
-		return cbg, err
-	case "smbg":
-		smbg, err := DecodeSmbg(data)
-		return smbg, err
-	case "wizard":
-		wizard, err := DecodeWizard(data)
-		return wizard, err
-	case "food":
-		food, err := DecodeFood(data)
-		return food, err
+		basal, metadata, err := DecodeBasal(data)
+		return basal, metadata, err
 	case "bloodKetone":
-		bloodKetone, err := DecodeBloodKetone(data)
-		return bloodKetone, err
-	case "reportedState":
-		reportedState, err := DecodeReportedState(data)
-		return reportedState, err
-	case "dosingDecision":
-		dosingDecision, err := DecodeDosingDecision(data)
-		return dosingDecision, err
-	case "settings":
-		settings, err := DecodeSettings(data)
-		return settings, err
-	case "insulin":
-		insulin, err := DecodeInsulin(data)
-		return insulin, err
+		bloodKetone, metadata, err := DecodeBloodKetone(data)
+		return bloodKetone, metadata, err
+	case "bolus":
+		bolus, metadata, err := DecodeBolus(data)
+		return bolus, metadata, err
+	case "cbg":
+		cbg, metadata, err := DecodeCbg(data)
+		return cbg, metadata, err
+	case "cgmSettings":
+		cgmSettings, metadata, err := DecodeCgmSettings(data)
+		return cgmSettings, metadata, err
 	case "deviceEvent":
-		deviceEvent, err := DecodeDeviceEvent(data)
-		return deviceEvent, err
+		deviceEvent, metadata, err := DecodeDeviceEvent(data)
+		return deviceEvent, metadata, err
+	case "deviceMeta":
+		deviceMeta, metadata, err := DecodeDeviceMeta(data)
+		return deviceMeta, metadata, err
+	case "dosingDecision":
+		dosingDecision, metadata, err := DecodeDosingDecision(data)
+		return dosingDecision, metadata, err
+	case "food":
+		food, metadata, err := DecodeFood(data)
+		return food, metadata, err
+	case "insulin":
+		insulin, metadata, err := DecodeInsulin(data)
+		return insulin, metadata, err
+	case "physicalActivity":
+		physicalActivity, metadata, err := DecodePhysicalActivity(data)
+		return physicalActivity, metadata, err
 	case "pumpSettings":
-		pumpSettings, err := DecodePumpSettings(data)
+		pumpSettings, metadata, err := DecodePumpSettings(data)
 		// XXX This is somewhat of a hack.  Seems like data model is not consistent
 		if err != nil {
-			pumpSettings, err := DecodePumpSettings2(data)
-			return pumpSettings, err
+			pumpSettings, metadata, err := DecodePumpSettings2(data)
+			return pumpSettings, metadata, err
 		}
-		return pumpSettings, err
-	case "physicalActivity":
-		physicalActivity, err := DecodePhysicalActivity(data)
-		return physicalActivity, err
-	case "cgmSettings":
-		cgmSettings, err := DecodeCgmSettings(data)
-		return cgmSettings, err
-	case "deviceMeta":
-		deviceMeta, err := DecodeDeviceMeta(data)
-		return deviceMeta, err
+		return pumpSettings, metadata, err
+	case "reportedState":
+		reportedState, metadata, err := DecodeReportedState(data)
+		return reportedState, metadata, err
+	case "settings":
+		settings, metadata, err := DecodeSettings(data)
+		return settings, metadata, err
+	case "smbg":
+		smbg, metadata, err := DecodeSmbg(data)
+		return smbg, metadata, err
+	case "upload":
+		upload, metadata, err := DecodeUpload(data)
+		return upload, metadata, err
+	case "wizard":
+		wizard, metadata, err := DecodeWizard(data)
+		return wizard, metadata, err
 	default:
-		fmt.Println("Currently not handling type: ", baseDeviceModel.Type)
+		fmt.Println("Currently not handling type: ", modelType)
 	}
-	return nil, nil
+	return nil, mapstructure.Metadata{}, nil
 }
 
 // StringToTimeHookFunusers returns a DecodeHookFunc that converts

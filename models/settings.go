@@ -22,28 +22,30 @@ type Settings struct {
 
 }
 
-func DecodeSettings(data interface{}) (*Settings, error)  {
+func DecodeSettings(data interface{}) (*Settings, mapstructure.Metadata, error)  {
 	var settings = Settings{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &settings,
+		Metadata: &metadata,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding settings: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := settings.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
-		return &settings, nil
+		return &settings, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, err
+		return nil, metadata, err
 	}
 }
 

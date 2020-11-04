@@ -8,6 +8,7 @@ CREATE TABLE dosing_decision (
 
     device_id            TEXT NULL,
     id                   Text Null,
+    internal_mongo_id    Text Null,
     guid                 Text Null,
 
     timezone             Text Null,

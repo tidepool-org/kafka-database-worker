@@ -48,53 +48,57 @@ type PumpSettings2 struct {
 	SerialNumber         string                       `mapstructure:"serialNumber" pg:"serial_number" json:"serialNumber,omitempty"`
 }
 
-func DecodePumpSettings(data interface{}) (*PumpSettings, error) {
+func DecodePumpSettings(data interface{}) (*PumpSettings, mapstructure.Metadata, error) {
 	var pumpSettings = PumpSettings{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &pumpSettings,
+		Metadata: &metadata,
 	   } ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding pump settings: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := pumpSettings.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
-		return &pumpSettings, nil
+		return &pumpSettings, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, err
+		return nil, metadata, err
 	}
 }
 
-func DecodePumpSettings2(data interface{}) (*PumpSettings2, error) {
+func DecodePumpSettings2(data interface{}) (*PumpSettings2, mapstructure.Metadata, error) {
 	var pumpSettings = PumpSettings2{}
+	var metadata = mapstructure.Metadata{}
 
 	if decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		DecodeHook: StringToTimeHookFuncTimezoneOptional(time.RFC3339),
 		Result: &pumpSettings,
+		Metadata: &metadata,
 	} ); err == nil {
 		if err := decoder.Decode(data); err != nil {
 			//fmt.Println("Error decoding pump settings: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 
 		if err := pumpSettings.DecodeBase(); err != nil {
 			fmt.Println("Error encoding base json: ", err)
-			return nil, err
+			return nil, metadata, err
 		}
 		pumpSettings.Type = "pumpSettings2"
 
-		return &pumpSettings, nil
+		return &pumpSettings, metadata, nil
 
 	} else {
 		fmt.Println("Can not create decoder: ", err)
-		return nil, err
+		return nil, metadata, err
 	}
 }
