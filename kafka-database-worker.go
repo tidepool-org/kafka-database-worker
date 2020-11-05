@@ -28,12 +28,14 @@ var (
 
 	Partition = 0
 	HostStr, _ = os.LookupEnv("KAFKA_BROKERS")
-	GroupId = "Tidepool-Mongo-Consumer01"
+	GroupId = "Tidepool-Mongo-Consumer02"
 	//MaxMessages = 33100000
 	MaxMessages = 40000000
 	WriteCount = 50000
 	DeviceDataNumWorkers = 2
 	Local = false
+	StartOffset int64 = 0
+	NumPartitions = 50
 )
 
 type UpdateRec struct {
@@ -228,18 +230,29 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 	fmt.Println("Reading topic: ", topic)
 
 
-	//maxMessages :=  0
 	prevTime := time.Now()
 
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	var r *kafka.Reader
 	var scanner *bufio.Scanner
+
+
+	brokers := []string{HostStr}
+	//topics := []string{topic}
+	groupid := GroupId + "." + topic
+
 	if !Local {
 
-		groupid := GroupId + "." + topic
+		// If we do not start at zero - commit offsets at new location
+		// This will not work for multiple replicas
+		//if StartOffset != 0 {
+		//	ConsumerGroupOverwriteOffsets(StartOffset, NumPartitions, groupid, brokers, topics)
+		//}
+
+		// Connect to broker
 		fmt.Printf("Connecting to broker: %s,  topic: %s,  groupid: %s\n", HostStr, topic, groupid)
 		r = kafka.NewReader(kafka.ReaderConfig{
-			Brokers:        []string{HostStr},
+			Brokers:        brokers,
 			Topic:          topic,
 			GroupID:        groupid,
 			//Partition:      Partition,
@@ -401,6 +414,35 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		r.Close()
 	}
 	wg.Done()
+}
+
+func ConsumerGroupOverwriteOffsets(offset int64, numPartitions int, consumerGroupID string, brokers []string, topics []string) {
+	group, err := kafka.NewConsumerGroup(kafka.ConsumerGroupConfig{
+		ID:      consumerGroupID,
+		Brokers: brokers,
+		Topics:  topics,
+	})
+	if err != nil {
+		fmt.Printf("error creating consumer group %s: %+v\n", consumerGroupID, err)
+		os.Exit(1)
+	}
+	defer group.Close()
+
+	gen, err := group.Next(context.TODO())
+	if err != nil {
+		fmt.Printf("error getting next generation: %+v\n", err)
+		os.Exit(1)
+	}
+	var offsets map[string]map[int]int64
+	offsets = make(map[string]map[int]int64, numPartitions)
+	for i := 0; i < numPartitions; i++ {
+		offsets[consumerGroupID][i] = offset
+	}
+	err = gen.CommitOffsets(offsets)
+	if err != nil {
+		fmt.Printf("error committing offsets next generation: %+v\n", err)
+		os.Exit(1)
+	}
 }
 
 func main() {
