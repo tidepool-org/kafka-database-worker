@@ -193,7 +193,7 @@ func processDeletes(db orm.DB, deletes []string) error {
 
 func sendToDB(db orm.DB, modelMap map[string][]interface{}, updates []UpdateRec, deletes []string, count int,
 	filtered int, decodingErrors int, deltaTime int64, topic string,
-	insertsCount int, updatesCount int, deletesCount int) {
+	insertsCount int, updatesCount int, deletesCount int, unmarshallCount int) {
 	recs := 0
 
 	// First do inserts
@@ -226,7 +226,7 @@ func sendToDB(db orm.DB, modelMap map[string][]interface{}, updates []UpdateRec,
 		fmt.Printf("No data received\n")
 	}
 	fmt.Printf("Topic: %s, DeltaTime: %d,  Messages: %d,  filtered: %d,  decodingErrors: %d\n", topic, deltaTime/1000000, count+1, filtered, decodingErrors)
-	fmt.Printf("Totals:  Inserts: %d  Updates: %d  Deletes: %d\n", insertsCount, updatesCount, deletesCount)
+	fmt.Printf("Totals:  Inserts: %d  Updates: %d  Deletes: %d  Unmarshall errors: %d\n", insertsCount, updatesCount, deletesCount, unmarshallCount)
 	fmt.Println("")
 }
 
@@ -294,6 +294,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 	deletesCount := 0
 	updatesCount := 0
 	messageCount := 0
+	unmarshallCount := 0
 
 	for messageCount =0; messageCount <MaxMessages; messageCount++ {
 
@@ -305,7 +306,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 				fmt.Println(topic, "Timeout fetching message: \n", err)
 				deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 				prevTime = time.Now()
-				sendToDB(db, modelMap, updates, deletes, messageCount, filtered, decodingErrors, deltaTime, topic, insertsCount, updatesCount, deletesCount)
+				sendToDB(db, modelMap, updates, deletes, messageCount, filtered, decodingErrors, deltaTime, topic,
+					insertsCount, updatesCount, deletesCount, unmarshallCount)
 				modelMap = make(map[string][]interface{})
 				deletes = []string{}
 				updates = []UpdateRec{}
@@ -326,7 +328,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		if (messageCount+1) % WriteCount == 0 {
 			deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 			prevTime = time.Now()
-			sendToDB(db, modelMap, updates, deletes, messageCount, filtered, decodingErrors, deltaTime, topic, insertsCount, updatesCount, deletesCount)
+			sendToDB(db, modelMap, updates, deletes, messageCount, filtered, decodingErrors, deltaTime, topic,
+				insertsCount, updatesCount, deletesCount, unmarshallCount)
 			modelMap = make(map[string][]interface{})
 			deletes = []string{}
 			updates = []UpdateRec{}
@@ -335,7 +338,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 		// Rec contains the entire kafka record
 		var rec map[string]interface{}
 		if err := json.Unmarshal(b, &rec); err != nil {
-			fmt.Println(topic, "Error Unmarshalling", err)
+			//fmt.Println(topic, "Error Unmarshalling", err)
+			unmarshallCount += 1
 		} else {
 
 			// This is a Create Event
@@ -414,7 +418,8 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 	fmt.Println(topic, "Finishing processing messages - cleanup")
 	deltaTime := time.Now().Sub(prevTime).Nanoseconds()
 	prevTime = time.Now()
-	sendToDB(db, modelMap, updates, deletes, messageCount, filtered, decodingErrors, deltaTime, topic, insertsCount, updatesCount, deletesCount)
+	sendToDB(db, modelMap, updates, deletes, messageCount, filtered, decodingErrors, deltaTime, topic,
+		insertsCount, updatesCount, deletesCount, unmarshallCount)
 
 	if !Local {
 		r.Close()

@@ -63,7 +63,7 @@ func DecodePumpSettings(data interface{}) (*PumpSettings, mapstructure.Metadata,
 		}
 
 		if err := pumpSettings.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 
