@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"reflect"
 	"github.com/fatih/structtag"
+	"errors"
 )
 
 type Model interface {
@@ -49,6 +50,10 @@ type Base struct {
 	Remaining       map[string]interface{}   `mapstructure:",remain" pg:"-" json:"-"`
 }
 
+var (
+	StartYear = 2018
+)
+
 func GetMongoIdFromFilterField(filter_field interface{}) *string {
 	filter_field_string := fmt.Sprintf("%v", filter_field)
 	var rec map[string]interface{}
@@ -78,11 +83,15 @@ func GetMongoId(rawMongoId interface{}) *string {
 }
 
 
-
+var MinTime = time.Date(StartYear, 1, 1, 0, 0, 0, 0, time.UTC)
 func (b *Base) DecodeBase() error {
 	mongoIdField, ok := b.Remaining["_id"]
 	if ok {
 		b.InternalMongoId = *GetMongoId(mongoIdField)
+	}
+	// check if time is before min time or 10 days after now
+	if b.Time.Before(MinTime) || b.Time.After(time.Now().Add(10*time.Hour * 24 * 10)) {
+		return errors.New("Invalid time: " + b.Time.String())
 	}
 	return nil
 }
