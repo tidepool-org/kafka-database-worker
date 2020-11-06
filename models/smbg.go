@@ -29,7 +29,7 @@ func DecodeSmbg(data interface{}) (*Smbg, mapstructure.Metadata, error) {
 		}
 
 		if err := smbg.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 

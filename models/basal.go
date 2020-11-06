@@ -32,7 +32,7 @@ func DecodeBasal(data interface{}) (*Basal, mapstructure.Metadata, error)  {
 		}
 
 		if err := basal.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 

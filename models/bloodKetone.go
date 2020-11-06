@@ -28,7 +28,7 @@ func DecodeBloodKetone(data interface{}) (*BloodKetone, mapstructure.Metadata, e
 		}
 
 		if err := bloodKetone.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 

@@ -33,7 +33,7 @@ func DecodePhysicalActivity(data interface{}) (*PhysicalActivity, mapstructure.M
 		}
 
 		if err := physicalActivity.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 

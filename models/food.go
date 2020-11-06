@@ -28,7 +28,7 @@ func DecodeFood(data interface{}) (*Food, mapstructure.Metadata, error) {
 		}
 
 		if err := food.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 

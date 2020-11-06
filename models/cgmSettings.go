@@ -36,7 +36,7 @@ func DecodeCgmSettings(data interface{}) (*CgmSettings, mapstructure.Metadata, e
 		}
 
 		if err := cgmSettings.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 

@@ -41,7 +41,7 @@ func DecodeBolus(data interface{}) (*Bolus, mapstructure.Metadata, error) {
 		}
 
 		if err := bolus.DecodeBase(); err != nil {
-			fmt.Println("Error decoding base json: ", err)
+			//fmt.Println("Error decoding base json: ", err)
 			return nil, metadata, err
 		}
 

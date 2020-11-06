@@ -37,7 +37,7 @@ func DecodeDeviceEvent(data interface{}) (*DeviceEvent, mapstructure.Metadata, e
 		}
 
 		if err := deviceEvent.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 

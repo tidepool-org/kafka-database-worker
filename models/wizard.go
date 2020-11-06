@@ -41,7 +41,7 @@ func DecodeWizard(data interface{}) (*Wizard, mapstructure.Metadata, error) {
 		}
 
 		if err := wizard.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 

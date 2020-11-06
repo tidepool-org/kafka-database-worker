@@ -37,7 +37,7 @@ func DecodeUpload(data interface{}) (*Upload, mapstructure.Metadata, error) {
 		}
 
 		if err := upload.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 

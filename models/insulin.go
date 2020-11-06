@@ -27,7 +27,7 @@ func DecodeInsulin(data interface{}) (*Insulin, mapstructure.Metadata, error)  {
 		}
 
 		if err := insulin.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 

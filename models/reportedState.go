@@ -27,7 +27,7 @@ func DecodeReportedState(data interface{}) (*ReportedState, mapstructure.Metadat
 		}
 
 		if err := reportedState.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 
