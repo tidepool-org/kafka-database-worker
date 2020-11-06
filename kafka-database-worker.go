@@ -155,7 +155,7 @@ func processUpdates(db orm.DB, updates []UpdateRec) error {
 		}
 	}
 	deltaTime := time.Now().Sub(prevTime).Nanoseconds()
-	fmt.Printf("Finished updates - DeltaTime: %d,  Calls: %d,  Avg: %f\n", deltaTime/1000000, calls, calls/len(updates))
+	fmt.Printf("Finished updates - DeltaTime: %d,  Calls: %d,  Avg: %d\n", deltaTime/1000000, calls, calls/len(updates))
 	return nil
 }
 
