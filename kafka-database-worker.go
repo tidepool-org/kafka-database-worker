@@ -124,10 +124,13 @@ func processInsert(db orm.DB, models []interface{}) {
 func processUpdates(db orm.DB, updates []UpdateRec) error {
 	models.GetModelTypes()
 	fmt.Printf("started updates  len: %d \n", len(updates))
+	prevTime := time.Now()
+	calls := 0
 	for _, update := range updates {
 
 		for _, modelType := range models.GetModelTypes() {
 			var data map[string]interface{}
+			calls += 1
 			if err := json.Unmarshal([]byte(update.patch), &data); err != nil {
 				//fmt.Println(topic, "Error Unmarshalling after field", err)
 				continue
@@ -151,6 +154,8 @@ func processUpdates(db orm.DB, updates []UpdateRec) error {
 			break
 		}
 	}
+	deltaTime := time.Now().Sub(prevTime).Nanoseconds()
+	fmt.Printf("Finished updates - DeltaTime: %d,  Calls: %d,  Avg: %f\n", deltaTime/1000000, calls, calls/len(updates))
 	return nil
 }
 
@@ -367,7 +372,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 					}
 					if err != nil {
 						decodingErrors += 1
-						fmt.Println(topic, "Overall decoding error:", err)
+						//fmt.Println(topic, "Overall decoding error:", err)
 					} else {
 						if model != nil {
 							_, ok := modelMap[model.GetType()]
@@ -391,12 +396,13 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 				}
 
 			// Check for delete Event
-			} else if filter_field_ok && filter_field != nil {
+			} else if filter_field_ok && filter_field != nil  && patch_field == nil && after_field == nil {
 
-				if id := models.GetMongoIdFromFilterField(filter_field); id != nil {
-					deletes = append(deletes, *id)
-					deletesCount += 1
-				}
+				// Not doing deletes right now
+				//if id := models.GetMongoIdFromFilterField(filter_field); id != nil {
+				//	deletes = append(deletes, *id)
+				//	deletesCount += 1
+				//}
 
 			// Not a valid kafka event
 			} else {
