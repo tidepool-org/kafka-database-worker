@@ -29,7 +29,7 @@ func DecodeCbg(data interface{}) (*Cbg, mapstructure.Metadata, error) {
 		}
 
 		if err := cbg.DecodeBase(); err != nil {
-			fmt.Println("Error encoding base json: ", err)
+			//fmt.Println("Error encoding base json: ", err)
 			return nil, metadata, err
 		}
 
