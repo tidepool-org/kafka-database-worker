@@ -402,6 +402,7 @@ func readFromQueue(wg *sync.WaitGroup, db orm.DB, topic string, numWorkers int) 
 			// Check for delete Event
 			} else if filter_field_ok && filter_field != nil  && patch_field == nil && after_field == nil {
 
+				deletesCount += 1
 				// Not doing deletes right now
 				//if id := models.GetMongoIdFromFilterField(filter_field); id != nil {
 				//	deletes = append(deletes, *id)
